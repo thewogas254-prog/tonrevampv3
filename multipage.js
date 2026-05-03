@@ -1,24 +1,24 @@
-const API_BASE_URL = "http://127.0.0.1:4000/api";
+const API_BASE_URL = "https://tonrevampv3-api.onrender.com/api";
 
 const pageMeta = {
-  "/index.html": { brand: "ton", nav: "" },
-  "/login.html": { brand: "ton", nav: "" },
-  "/signup.html": { brand: "ton", nav: "" },
-  "/partner-login.html": { brand: "partnerAds", nav: "" },
-  "/partner-signup.html": { brand: "partnerAds", nav: "" },
-  "/profile.html": { brand: "ton", nav: "profile" },
-  "/swap.html": { brand: "swap", nav: "swap" },
-  "/matches.html": { brand: "swap", nav: "matches" },
-  "/messages.html": { brand: "ton", nav: "messages" },
-  "/notifications.html": { brand: "ton", nav: "notifications" },
-  "/news.html": { brand: "ton", nav: "news" },
-  "/blogs.html": { brand: "ton", nav: "blogs" },
-  "/videos.html": { brand: "creators", nav: "videos" },
-  "/watch.html": { brand: "creators", nav: "videos" },
-  "/shop.html": { brand: "ton", nav: "shop" },
-  "/partner.html": { brand: "partnerAds", nav: "partner" },
-  "/my-shop.html": { brand: "ton", nav: "my-shop" },
-  "/creator-studio.html": { brand: "ton", nav: "my-blog" }
+  "/index": { brand: "ton", nav: "" },
+  "/login": { brand: "ton", nav: "" },
+  "/signup": { brand: "ton", nav: "" },
+  "/partner-login": { brand: "partnerAds", nav: "" },
+  "/partner-signup": { brand: "partnerAds", nav: "" },
+  "/profile": { brand: "ton", nav: "profile" },
+  "/swap": { brand: "swap", nav: "swap" },
+  "/matches": { brand: "swap", nav: "matches" },
+  "/messages": { brand: "ton", nav: "messages" },
+  "/notifications": { brand: "ton", nav: "notifications" },
+  "/news": { brand: "ton", nav: "news" },
+  "/blogs": { brand: "ton", nav: "blogs" },
+  "/videos": { brand: "creators", nav: "videos" },
+  "/watch": { brand: "creators", nav: "videos" },
+  "/shop": { brand: "ton", nav: "shop" },
+  "/partner": { brand: "partnerAds", nav: "partner" },
+  "/my-shop": { brand: "ton", nav: "my-shop" },
+  "/creator-studio": { brand: "ton", nav: "my-blog" }
 };
 
 const brandMeta = {
@@ -45,18 +45,18 @@ const brandMeta = {
 };
 
 const navTargets = {
-  profile: "profile.html",
-  swap: "swap.html",
-  matches: "matches.html",
-  messages: "messages.html",
-  notifications: "notifications.html",
-  news: "news.html",
-  blogs: "blogs.html",
-  videos: "videos.html",
-  shop: "shop.html",
-  partner: "partner.html",
-  "my-shop": "my-shop.html",
-  "my-blog": "creator-studio.html"
+  profile: "/profile",
+  swap: "/swap",
+  matches: "/matches",
+  messages: "/messages",
+  notifications: "/notifications",
+  news: "/news",
+  blogs: "/blogs",
+  videos: "/videos",
+  shop: "/shop",
+  partner: "/partner",
+  "my-shop": "/my-shop",
+  "my-blog": "/creator-studio"
 };
 
 const counties = [
@@ -158,7 +158,10 @@ async function partnerApi(path, options = {}) {
 }
 
 function currentPath() {
-  return window.location.pathname.endsWith("/") ? "/index.html" : window.location.pathname;
+  let path = window.location.pathname;
+  if (path === "/" || path === "/index.html" || path === "/index") return "/index";
+  if (path.endsWith("/")) path = path.slice(0, -1);
+  return path.replace(/\.html$/, "");
 }
 
 function optionList(items, selected = "") {
@@ -212,7 +215,7 @@ function showToast(message, type = "success") {
 }
 
 function setBrand() {
-  const meta = pageMeta[currentPath()] || pageMeta["/index.html"];
+  const meta = pageMeta[currentPath()] || pageMeta["/index"];
   const brand = brandMeta[meta.brand] || brandMeta.ton;
   if ($("#brand-logo")) $("#brand-logo").src = brand.logo;
   if ($("#brand-logo")) $("#brand-logo").alt = `${brand.name} logo`;
@@ -224,7 +227,7 @@ function setBrand() {
 function bindNavigation() {
   $$("[data-nav]").forEach((item) => {
     item.addEventListener("click", () => {
-      window.location.href = navTargets[item.dataset.nav] || "profile.html";
+      window.location.href = navTargets[item.dataset.nav] || "/profile";
     });
   });
 }
@@ -308,9 +311,9 @@ function setProfileEditing(enabled) {
 }
 
 function requireAuth() {
-  const publicPages = ["/index.html", "/login.html", "/signup.html", "/partner-login.html", "/partner-signup.html", "/partner.html"];
+  const publicPages = ["/index", "/login", "/signup", "/partner-login", "/partner-signup", "/partner"];
   if (!token() && !publicPages.includes(currentPath())) {
-    window.location.href = "login.html";
+    window.location.href = "/login";
   }
 }
 
@@ -323,7 +326,7 @@ function bootShell() {
   if (logout) {
     logout.addEventListener("click", () => {
       localStorage.removeItem("ton_auth_token");
-      window.location.href = "login.html";
+      window.location.href = "/login";
     });
   }
 }
@@ -344,7 +347,7 @@ async function bootLogin() {
         })
       });
       localStorage.setItem("ton_auth_token", data.token);
-      window.location.href = data.profile?.profileCompleted ? "swap.html" : "profile.html";
+      window.location.href = data.profile?.profileCompleted ? "/swap" : "/profile";
     } catch (error) {
       setMessage(error.message);
     }
@@ -367,7 +370,7 @@ async function bootSignup() {
         body: JSON.stringify({ email, phoneNumber: phone, password })
       });
       localStorage.setItem("ton_auth_token", data.token);
-      window.location.href = "profile.html";
+      window.location.href = "/profile";
     } catch (error) {
       setMessage(error.message);
     }
@@ -376,7 +379,7 @@ async function bootSignup() {
 
 async function bootPartnerLogin() {
   if (partnerSession()) {
-    window.location.href = "partner.html";
+    window.location.href = "/partner";
     return;
   }
   $("#partner-login-form")?.addEventListener("submit", async (event) => {
@@ -390,7 +393,7 @@ async function bootPartnerLogin() {
       });
       localStorage.setItem("ton_partner_token", data.token);
       localStorage.setItem("ton_partner_session", JSON.stringify({ email: data.user.email, entityName: data.partner?.entityName || data.user.email, signedInAt: new Date().toISOString() }));
-      window.location.href = "partner.html";
+      window.location.href = "/partner";
     } catch (error) {
       setMessage(error.message || "Invalid partner email or password.");
     }
@@ -399,7 +402,7 @@ async function bootPartnerLogin() {
 
 async function bootPartnerSignup() {
   if (partnerSession()) {
-    window.location.href = "partner.html";
+    window.location.href = "/partner";
     return;
   }
   state.partnerOnboardingStep = Number(localStorage.getItem("ton_partner_onboarding_step") || 0);
@@ -481,7 +484,7 @@ async function bootPartnerSignup() {
     }
     localStorage.removeItem("ton_partner_onboarding_draft");
     localStorage.removeItem("ton_partner_onboarding_step");
-    window.location.href = "partner.html";
+    window.location.href = "/partner";
   });
 }
 
@@ -588,7 +591,7 @@ async function bootProfile() {
         setProfileEditing(false);
         setMessage("Profile changes saved.", "success");
       } else {
-        window.location.href = "swap.html";
+        window.location.href = "/swap";
       }
     } catch (error) {
       setMessage(error.message);
@@ -1030,7 +1033,7 @@ function renderCampaignStateTrack(status = "DRAFT") {
 async function bootPartner() {
   const session = partnerSession();
   if (!session) {
-    window.location.href = "partner-login.html";
+    window.location.href = "/partner-login";
     return;
   }
   if (partnerToken()) {
@@ -1040,7 +1043,7 @@ async function bootPartner() {
     } catch {
       localStorage.removeItem("ton_partner_token");
       localStorage.removeItem("ton_partner_session");
-      window.location.href = "partner-login.html";
+      window.location.href = "/partner-login";
       return;
     }
   }
@@ -1051,7 +1054,7 @@ async function bootPartner() {
   $("#partner-logout-button")?.addEventListener("click", () => {
     localStorage.removeItem("ton_partner_token");
     localStorage.removeItem("ton_partner_session");
-    window.location.href = "partner-login.html";
+    window.location.href = "/partner-login";
   });
   const reference = await api("/reference").catch(() => null);
   const countyOptions = reference?.counties?.length ? reference.counties : counties;
@@ -1323,7 +1326,7 @@ async function bootSwap() {
           urgencyStatus: $("#urgency").value
         })
       });
-      window.location.href = "matches.html";
+      window.location.href = "/matches";
     } catch (error) {
       setMessage(error.message);
     }
@@ -1361,7 +1364,7 @@ function bindMatchActions() {
         if (action === "dm") {
           const result = await api(`/matches/${matchId}/dm`, { method: "POST" });
           sessionStorage.setItem("ton_last_conversation_id", result.conversationId);
-          window.location.href = "messages.html";
+          window.location.href = "/messages";
           return;
         }
         if (action === "call") {
@@ -1446,7 +1449,7 @@ function bootVideos() {
   `).join("");
   $$(".video-card").forEach((card) => {
     card.addEventListener("click", () => {
-      window.location.href = `watch.html?id=${card.dataset.video}`;
+      window.location.href = `/watch?id=${card.dataset.video}`;
     });
   });
 }
