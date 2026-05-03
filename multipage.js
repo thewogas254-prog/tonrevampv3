@@ -190,6 +190,25 @@ function normalizeKenyanPhone(value = "") {
   return compact;
 }
 
+function bindPasswordToggles() {
+  $$("[data-password-toggle]").forEach((button) => {
+    const input = $(`#${button.dataset.passwordToggle}`);
+    if (!input) return;
+    button.textContent = input.type === "password" ? "Show" : "Hide";
+    button.addEventListener("click", () => {
+      input.type = input.type === "password" ? "text" : "password";
+      button.textContent = input.type === "password" ? "Show" : "Hide";
+    });
+  });
+}
+
+function clearPageMessage() {
+  const box = $("#page-message") || $("#auth-message");
+  if (!box) return;
+  box.textContent = "";
+  box.className = "auth-message";
+}
+
 function setMessage(message, type = "error") {
   const box = $("#page-message") || $("#auth-message");
   if (!box) {
@@ -336,6 +355,9 @@ function passwordIsStrong(password) {
 }
 
 async function bootLogin() {
+  bindPasswordToggles();
+  $("#login-identifier")?.addEventListener("input", clearPageMessage);
+  $("#login-password")?.addEventListener("input", clearPageMessage);
   $("#login-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
@@ -355,6 +377,13 @@ async function bootLogin() {
 }
 
 async function bootSignup() {
+  bindPasswordToggles();
+  $("#email")?.addEventListener("input", clearPageMessage);
+  $("#confirm-email")?.addEventListener("input", clearPageMessage);
+  $("#phone")?.addEventListener("input", clearPageMessage);
+  $("#confirm-phone")?.addEventListener("input", clearPageMessage);
+  $("#password")?.addEventListener("input", clearPageMessage);
+  $("#confirm-password")?.addEventListener("input", clearPageMessage);
   $("#signup-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const email = $("#email").value.trim();
@@ -378,6 +407,7 @@ async function bootSignup() {
 }
 
 async function bootPartnerLogin() {
+  bindPasswordToggles();
   if (partnerSession()) {
     window.location.href = "/partner";
     return;
@@ -401,6 +431,7 @@ async function bootPartnerLogin() {
 }
 
 async function bootPartnerSignup() {
+  bindPasswordToggles();
   if (partnerSession()) {
     window.location.href = "/partner";
     return;
@@ -543,7 +574,7 @@ function validatePartnerOnboardingStep() {
     if (!/^(?:\+254|254|0)[17]\d{8}$/.test($("#partner-signup-phone").value.trim().replace(/\s+/g, ""))) return "Kenyan phone number is required for OTP.";
   }
   if (step === 2 && !$("#partner-signup-entity-name").value.trim()) return "Display or entity name is required.";
-  if (step === 3 && $("#partner-signup-otp").value.trim() !== "123456") return "Enter the 6-digit OTP. Use 123456 in this prototype.";
+  if (step === 3 && !/^\d{6}$/.test($("#partner-signup-otp").value.trim())) return "Enter a valid 6-digit verification code.";
   if (step === 4 && !$("#partner-signup-terms").checked) return "Accept the trust and advertising policy before launching promotions.";
   return "";
 }

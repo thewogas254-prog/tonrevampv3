@@ -19,8 +19,14 @@
             <div class="auth-tabs"><button type="button" onclick="location.href='/signup'">Create Account</button><button class="active" type="button" disabled>Sign In</button></div>
             <form id="login-form" class="auth-form">
               <div class="auth-mode-panel active">
-                <label>Email, Phone, or Handle <input id="login-identifier" autocomplete="username" value="klickviews2026!" /><small></small></label>
-                <label>Password <input id="login-password" type="password" autocomplete="current-password" value="Klickviews2026!" /><small></small></label>
+                <label>Email, Phone, or Handle <input id="login-identifier" autocomplete="username" value="" /><small></small></label>
+                <label>Password
+                  <div class="password-field">
+                    <input id="login-password" type="password" autocomplete="current-password" value="" />
+                    <button type="button" data-password-toggle="login-password">Show</button>
+                  </div>
+                  <small></small>
+                </label>
                 <button type="submit">Sign In</button>
               </div>
               <div class="auth-message" id="page-message"></div>

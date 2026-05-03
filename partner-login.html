@@ -12,7 +12,13 @@
             <form id="partner-login-form" class="auth-form">
               <div class="auth-mode-panel active">
                 <label>Partner Email <input id="partner-login-email" type="email" autocomplete="username" /><small></small></label>
-                <label>Password <input id="partner-login-password" type="password" autocomplete="current-password" /><small></small></label>
+                <label>Password
+                  <div class="password-field">
+                    <input id="partner-login-password" type="password" autocomplete="current-password" />
+                    <button type="button" data-password-toggle="partner-login-password">Show</button>
+                  </div>
+                  <small></small>
+                </label>
                 <button type="submit">Open Growth Dashboard</button>
               </div>
               <div class="auth-message" id="page-message"></div>

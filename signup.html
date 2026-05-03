@@ -12,11 +12,23 @@
             <form id="signup-form" class="auth-form">
               <div class="auth-mode-panel active">
                 <label>Email <input id="email" type="email" autocomplete="email" /><small></small></label>
-                <label>Confirm Email <input id="confirm-email" type="email" /><small></small></label>
-                <label>Phone <input id="phone" type="tel" placeholder="+254712345678" /><small></small></label>
-                <label>Confirm Phone <input id="confirm-phone" type="tel" /><small></small></label>
-                <label>Password <input id="password" type="password" /><small></small></label>
-                <label>Confirm Password <input id="confirm-password" type="password" /><small></small></label>
+                <label>Confirm Email <input id="confirm-email" type="email" autocomplete="email" /><small></small></label>
+                <label>Phone <input id="phone" type="tel" autocomplete="tel" placeholder="+254712345678" /><small></small></label>
+                <label>Confirm Phone <input id="confirm-phone" type="tel" autocomplete="tel" /><small></small></label>
+                <label>Password
+                  <div class="password-field">
+                    <input id="password" type="password" autocomplete="new-password" />
+                    <button type="button" data-password-toggle="password">Show</button>
+                  </div>
+                  <small></small>
+                </label>
+                <label>Confirm Password
+                  <div class="password-field">
+                    <input id="confirm-password" type="password" autocomplete="new-password" />
+                    <button type="button" data-password-toggle="confirm-password">Show</button>
+                  </div>
+                  <small></small>
+                </label>
                 <button type="submit">Create Account</button>
               </div>
               <div class="auth-message" id="page-message"></div>

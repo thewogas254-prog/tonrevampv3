@@ -15,9 +15,21 @@
                 <h3>1. Secure Your Growth Account</h3>
                 <div class="form-grid">
                   <label>Email <input id="partner-signup-email" type="email" autocomplete="email" /><small></small></label>
-                  <label>Password <input id="partner-signup-password" type="password" /><small></small></label>
-                  <label>Confirm Password <input id="partner-signup-confirm-password" type="password" /><small></small></label>
-                  <label>Phone Number <input id="partner-signup-phone" type="tel" placeholder="+254712345678" /><small>OTP verification happens after profile setup.</small></label>
+                  <label>Password
+                    <div class="password-field">
+                      <input id="partner-signup-password" type="password" autocomplete="new-password" />
+                      <button type="button" data-password-toggle="partner-signup-password">Show</button>
+                    </div>
+                    <small></small>
+                  </label>
+                  <label>Confirm Password
+                    <div class="password-field">
+                      <input id="partner-signup-confirm-password" type="password" autocomplete="new-password" />
+                      <button type="button" data-password-toggle="partner-signup-confirm-password">Show</button>
+                    </div>
+                    <small></small>
+                  </label>
+                  <label>Phone Number <input id="partner-signup-phone" type="tel" autocomplete="tel" placeholder="+254712345678" /><small>OTP verification will be activated when the backend messaging pipeline is connected.</small></label>
                 </div>
               </section>
               <section class="onboarding-step" data-onboarding-step="1">
@@ -42,8 +54,8 @@
               <section class="onboarding-step" data-onboarding-step="3">
                 <h3>4. Build Trust With Verification</h3>
                 <div class="otp-panel">
-                  <p>Enter the OTP sent to your phone. Use <strong>123456</strong> in this local prototype.</p>
-                  <label>OTP Code <input id="partner-signup-otp" inputmode="numeric" maxlength="6" /></label>
+                  <p>Enter the 6-digit verification code that will be sent to your phone.</p>
+                  <label>OTP Code <input id="partner-signup-otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" /></label>
                 </div>
               </section>
               <section class="onboarding-step" data-onboarding-step="4">
