@@ -139,7 +139,7 @@ const demoAccounts = [
   }
 ];
 
-const API_BASE_URL = "http://127.0.0.1:4000/api";
+const API_BASE_URL = "https://tonrevampv3-api.onrender.com/api";
 
 const notifications = [
   { title: "New possible swap match", target: "matches", detail: "Mary Achieng matches your Kisumu request." },
