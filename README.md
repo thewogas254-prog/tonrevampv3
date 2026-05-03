@@ -44,7 +44,7 @@ npm.cmd run db:seed
 
 ## Auth Prototype Flow
 
-Open `http://127.0.0.1:8080/login.html`.
+Open `http://127.0.0.1:8080/index.html`.
 
 For signup, use:
 
@@ -63,59 +63,3 @@ Seeded prototype login:
 - Password: `Klickviews2026!`
 
 The local database seed also creates this verified user and a completed teacher profile.
-
-## API Layer
-
-The first database-backed API layer now lives in `packages/api`.
-
-Start the API:
-
-```powershell
-cd packages/api
-npm install
-npm.cmd run dev
-```
-
-The API runs on:
-
-```txt
-http://127.0.0.1:4000/api
-```
-
-Implemented endpoints:
-
-- `GET /api/health`
-- `GET /api/reference`
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/me`
-- `PUT /api/profile`
-- `POST /api/swap-requests`
-- `GET /api/matches`
-
-The frontend now uses the API for login, signup, profile save, swap request creation, and match loading.
-
-Local frontend:
-
-```powershell
-python -m http.server 8080 --bind 127.0.0.1
-```
-
-## Frontend Routes
-
-The frontend has been split out of the old single-page `index.html` prototype. `index.html` now redirects to login, and each major module has its own URL:
-
-- `/login.html`
-- `/signup.html`
-- `/profile.html`
-- `/swap.html`
-- `/matches.html`
-- `/messages.html`
-- `/notifications.html`
-- `/news.html`
-- `/blogs.html`
-- `/videos.html`
-- `/watch.html`
-- `/shop.html`
-- `/my-shop.html`
-- `/creator-studio.html`
