@@ -1,0 +1,344 @@
+1.Mombasa
+Mvita
+Changamwe
+Kisauni
+Nyali
+Likoni
+Jomvu
+
+Kwale County
+• Matuga
+• Lunga Lunga
+• Msambweni
+• Kinango
+Kilifi County
+• Kilifi North
+• Kilifi South
+• Ganze
+• Kaloleni
+• Malindi
+• Magarini
+Tana River County
+• Bura
+• Galole
+• Tana Delta
+
+Lamu County
+• Lamu East
+• Lamu West
+Taita Taveta County
+• Mwatate
+• Taveta
+• Voi
+• Wundanyi
+Garissa County
+• Garissa Township
+• Dadaab
+• Fafi
+• Lagdera
+• Balambala
+• Hulugho
+Wajir County
+• Wajir East
+• Wajir West
+• Wajir North
+• Wajir South
+• Eldas
+• Tarbaj
+• Buna 
+Mandera County
+• Mandera West
+• Mandera East
+• Mandera North
+• Mandera South
+• Banissa
+• Lafey
+• Kutulo
+Marsabit County
+• Marsabit Central
+• Moyale
+• North Horr
+• Laisamis
+• Saku
+Isiolo County
+• Isiolo North
+• Isiolo South
+• Merti
+• Garbatulla
+
+Meru County
+• Imenti North
+• Imenti Central
+• Imenti South
+• Buuri
+• Tigania East
+• Tigania West
+• Igembe North
+• Igembe Central
+• Igembe South
+Tharaka Nithi County
+• Maara
+• Chuka/Igambang’ombe
+• Tharaka North
+• Tharaka South
+Embu County
+• Manyatta
+• Runyenjes
+• Mbeere North
+• Mbeere South
+Kitui County
+• Kitui Central
+• Kitui East
+• Kitui West
+• Kitui South
+• Mwingi North
+• Mwingi Central
+• Mwingi West
+Machakos County
+• Machakos Town
+• Masinga
+• Yatta
+• Kangundo
+• Matungulu
+• Kathiani
+• Mwala
+Makueni County
+• Makueni
+• Mbooni
+• Kilome
+• Kibwezi West
+• Kibwezi East
+• Kaiti
+Nyandarua County
+• Kinangop
+• Kipipiri
+• Ol Kalou
+• Ol Jorok
+• Ndaragwa
+Nyeri County
+• Tetu
+• Kieni
+• Mathira
+• Othaya
+• Mukurweini
+• Nyeri Town
+Kirinyaga County
+• Mwea
+• Gichugu
+• Ndia
+• Kirinyaga Central
+
+Murang’a County
+• Kiharu
+• Kangema
+• Mathioya
+• Kandara
+• Gatanga
+• Kigumo
+• Maragwa
+Kiambu County
+• Kiambu
+• Ruiru
+• Githunguri
+• Gatundu North
+• Gatundu South
+• Juja
+• Thika Town
+• Limuru
+• Kikuyu
+• Lari
+Turkana County
+• Turkana Central
+• Turkana North
+• Turkana South
+• Turkana East
+• Turkana West
+West Pokot County
+• Kapenguria
+• Pokot South
+• Pokot North
+• Pokot Central
+• Pokot West
+Samburu County
+• Samburu East
+• Samburu North
+• Samburu West
+Trans Nzoia County
+• Kiminini
+• Saboti
+• Cherangany
+• Endebess
+• Kwanza
+Uasin Gishu County
+• Soy
+• Turbo
+• Moiben
+• Ainabkoi
+• Kapseret
+• Kesses
+Elgeyo Marakwet County
+• Marakwet East
+• Marakwet West
+• Keiyo North
+• Keiyo South
+Nandi County
+• Nandi Hills
+• Emgwen
+• Aldai
+• Mosop
+• Chesumei
+• Tindiret
+Baringo County
+• Baringo Central
+• Baringo North
+• Baringo South
+• Mogotio
+• Tiaty
+
+Laikipia County
+• Laikipia East
+• Laikipia West
+• Laikipia North
+Nakuru County
+• Nakuru Town East
+• Nakuru Town West
+• Bahati
+• Rongai
+• Subukia
+• Gilgil
+• Naivasha
+• Njoro
+• Molo
+• Kuresoi North
+• Kuresoi South
+Narok County
+• Narok North
+• Narok South
+• Narok East
+• Narok West
+• Transmara East
+• Transmara West
+Kajiado County
+• Kajiado North
+• Kajiado Central
+• Kajiado East
+• Kajiado West
+• Kajiado South
+Kericho County
+• Ainamoi
+• Belgut
+• Bureti
+• Kipkelion East
+• Kipkelion West
+• Sigowet/Soin
+Bomet County
+• Bomet Central
+• Bomet East
+• Chepalungu
+• Sotik
+• Konoin
+Kakamega County
+• Lurambi
+• Likuyani
+• Malava
+• Lugari
+• Ikolomani
+• Shinyalu
+• Mumias East
+• Mumias West
+• Matungu
+• Butere
+• Khwisero
+• Navakholo
+Vihiga County
+• Hamisi
+• Emuhaya
+• Luanda
+• Sabatia
+• Vihiga
+Bungoma County
+• Kanduyi
+• Kimilili
+• Tongaren
+• Webuye East
+• Webuye West
+• Sirisia
+• Mt. Elgon
+• Bumula
+• Kabuchai
+Busia County
+• Nambale
+• Matayos
+• Butula
+• Samia
+• Bunyala
+• Teso North
+• Teso South
+
+Siaya County
+• Alego Usonga
+• Gem
+• Ugenya
+• Ukwala (Ugunja)
+• Bondo
+• Rarieda
+Kisumu County
+• Kisumu Central
+• Kisumu East
+• Kisumu West
+• Seme
+• Nyando
+• Muhoroni
+• Nyakach
+Homa Bay County
+• Rangwe
+• Homa Bay Town
+• Ndhiwa
+• Suba North
+• Suba South
+• Rachuonyo North
+• Rachuonyo East
+• Rachuonyo South
+• Kabondo Kasipul
+Migori County
+• Suna East
+• Suna West
+• Uriri
+• Awendo
+• Rongo
+• Nyatike
+• Kuria East
+• Kuria West
+Kisii County
+• Kitutu Chache North
+• Kitutu Chache South
+• Nyaribari Chache
+• Nyaribari Masaba
+• Bobasi
+• Bomachoge Borabu
+• Bomachoge Chache
+• South Mugirango
+• Bonchari
+Nyamira County
+• West Mugirango
+• North Mugirango
+• Borabu
+• Kitutu Masaba
+Nairobi City County
+• Westlands
+• Dagoretti North
+• Dagoretti South
+• Lang’ata
+• Kibra
+• Roysambu
+• Kasarani
+• Ruaraka
+• Embakasi South
+• Embakasi North
+• Embakasi Central
+• Embakasi East
+• Embakasi West
+• Makadara
+• Kamukunji
+• Starehe
+• Mathare

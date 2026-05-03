@@ -1,0 +1,1305 @@
+You’re very close to a solid SaaS design here, but what you currently have is a **feature dump with mixed business rules, UX logic, and billing constraints embedded in the flow**. To make it SaaS-grade, we need to convert this into a **clean product architecture with deterministic workflows, modular billing, and scalable campaign logic**.
+
+Below is a polished, production-ready version of your concept.
+
+---
+
+# 1. PRODUCT MODULE: “Partner Module” (Refined Definition)
+
+### Purpose
+
+A self-serve onboarding + ad campaign creation system for businesses and individuals to publish ads on your platform with structured pricing, moderation, and scheduling.
+
+---
+
+# 2. ONBOARDING FLOW (SaaS-GRADE SIGNUP SYSTEM)
+
+Replace the flat signup with a **progressive onboarding wizard**:
+
+## Step 1: Account Creation
+
+* Email
+* Password
+* Confirm Password
+* Phone number (for OTP verification)
+
+> ⚠️ OTP verification happens AFTER step 2 completion (to reduce friction).
+
+---
+
+## Step 2: Account Type Selection
+
+User selects:
+
+* Individual (personal advertiser)
+* Business (registered entity)
+* Company (formal organization)
+
+---
+
+## Step 3: Business/Company Profile
+
+### If Business/Company:
+
+* Business/Company name
+* Business registration (optional MVP)
+* Industry category
+* Location:
+
+  * County dropdown (Kenya counties list)
+  * Option: **“Nationwide (All Counties)” toggle**
+
+### If Individual:
+
+* Display name
+* Optional niche (e.g. freelancer, creator, marketer)
+
+---
+
+## Step 4: Verification
+
+* OTP sent to phone number
+* Must be verified before campaign publishing
+
+---
+
+## Step 5: Terms + Continue
+
+* Accept terms of advertising policy
+* Enter dashboard
+
+---
+
+# 3. CAMPAIGN CREATION MODULE (CORE PRODUCT)
+
+This should be a **multi-step campaign wizard**, not a single form.
+
+---
+
+## Step 1: Choose Campaign Type
+
+* Text Ad
+* Text + Image Ad
+* Video Ad
+
+---
+
+## Step 2: Content Builder (Dynamic based on type)
+
+### A. Text Ad Rules
+
+* Character limit (e.g. 500–800 chars SaaS-controlled)
+* Rich formatting allowed:
+
+  * Bold / highlight keywords
+  * Links allowed
+  * Limited emojis (controlled set)
+* CTA button text selection
+
+---
+
+### B. Text + Image Ads
+
+* Text (expanded limit vs text-only)
+* Upload up to **4 square images (1:1 ratio enforced)**
+* Image ordering system (drag & drop)
+
+---
+
+### C. Video Ads
+
+* Upload video (max 5 minutes)
+* Optional thumbnail upload
+* Title + description fields
+
+---
+
+## Step 3: Targeting & Placement
+
+* Select counties OR “Nationwide”
+* Optional future expansion:
+
+  * Interest targeting
+  * Demographics
+
+---
+
+## Step 4: Scheduling & Frequency
+
+### Duration:
+
+* Minimum: **3 days**
+* Default bundle rule:
+
+  * Minimum payment tier includes **7 days exposure**
+
+### Frequency options:
+
+* All day (highest reach, highest cost)
+* Twice a day
+* Thrice a week
+* Once a week
+
+> Internally: this maps to impression caps + scheduling engine.
+
+---
+
+## Step 5: Pricing Summary (Real-time calculator)
+
+User sees:
+
+* Base cost (by ad type)
+* Duration multiplier
+* Frequency multiplier
+* Location multiplier (optional future)
+* Final cost breakdown
+
+---
+
+# 4. PRICING MODEL (REFINED INTO SaaS RULE ENGINE)
+
+You already had good instincts here—this just needs structure.
+
+## Base Pricing
+
+| Ad Type  | Minimum Price | Base Duration Included |
+| -------- | ------------- | ---------------------- |
+| Text Ad  | KES 399       | 7 days                 |
+| Image Ad | KES 599       | 7 days                 |
+| Video Ad | KES 899       | 7 days                 |
+
+---
+
+## Pricing Logic (SaaS Rule Engine)
+
+### Cost multipliers:
+
+#### 1. Duration
+
+* Base = 7 days included
+* Extra days = +X% per day
+
+#### 2. Frequency multiplier
+
+* All day → highest multiplier
+* Twice daily → medium
+* Weekly → lowest
+
+#### 3. Format multiplier
+
+* Text < Image < Video
+
+---
+
+> This should be implemented as a **pricing engine service**, not hardcoded UI logic.
+
+---
+
+# 5. PAYMENT SYSTEM (CLEAN FLOW)
+
+## Step 1: Payment Method Selection
+
+* M-Pesa (primary for Kenya)
+* PayPal
+* Payless (your internal wallet system)
+
+---
+
+## Step 2: Payment Execution
+
+* System generates invoice
+* User pays
+
+---
+
+## Step 3: Verification Layer
+
+* M-Pesa STK Push / transaction code input
+* PayPal callback confirmation
+
+---
+
+## Step 4: Status Flow
+
+Campaign status:
+
+1. Draft
+2. Pending Payment
+3. Pending Verification
+4. Pending Approval (Admin)
+5. Live
+6. Completed
+
+---
+
+# 6. ADMIN APPROVAL SYSTEM
+
+This is crucial for platform trust.
+
+Admin can:
+
+* Approve / reject ads
+* Request edits
+* Flag policy violations
+* Adjust pricing (optional advanced feature)
+
+---
+
+# 7. UX DESIGN SYSTEM (CRITICAL FOR SAAS FEEL)
+
+## Campaign Builder UX Rules
+
+### Must include:
+
+* Step-by-step wizard (NEVER one long form)
+* Progress indicator (Step 1 of 5)
+* Auto-save draft every 10–20 seconds
+* “Save & continue later” button always visible
+* Instant validation (no form submission errors at end)
+
+---
+
+## UX Enhancements
+
+### Text Ad Editor:
+
+* Rich text toolbar:
+
+  * Bold
+  * Highlight keywords
+  * Link insertion
+  * Emoji picker (limited set)
+
+---
+
+### Media Upload:
+
+* Drag & drop
+* Preview before upload
+* Compression warning for video
+
+---
+
+### Pricing UX:
+
+* Live updating cost calculator
+* “Why this cost?” expandable explanation
+
+---
+
+# 8. SYSTEM ARCHITECTURE (SAAS-GRADE)
+
+## Core Services:
+
+### 1. Auth Service
+
+* Users, OTP, roles
+
+### 2. Campaign Service
+
+* Ad creation workflow
+* Drafts
+* Publishing
+
+### 3. Pricing Engine Service
+
+* Rule-based pricing calculations
+
+### 4. Media Service
+
+* Image/video storage (S3)
+
+### 5. Payment Service
+
+* M-Pesa, PayPal integration
+* Invoice tracking
+
+### 6. Admin Moderation Service
+
+* Approval queue
+* Audit logs
+
+---
+
+# 9. KEY UPGRADE (WHAT MAKES THIS “WORLD CLASS”)
+
+To elevate this from “tool” → “SaaS platform”, add:
+
+## 1. AI Ad Assistant
+
+* Generates ad copy
+* Suggests improvements
+* Predicts performance score
+
+## 2. Campaign Analytics Dashboard
+
+* Views
+* Engagement
+* CTR (future phase)
+
+## 3. Template Library
+
+* Prebuilt industry campaigns
+
+## 4. Smart Scheduling Engine (future)
+
+* Auto-optimize frequency based on performance
+
+---
+
+# 10. FINAL PRODUCT POSITIONING
+
+You are building:
+
+> “A self-serve, AI-assisted ad publishing platform for African businesses with automated pricing, verification, and structured campaign delivery.”
+
+---
+
+# If you want next step
+
+I can help you immediately translate this into:
+
+* Database schema (PostgreSQL)
+* API design (REST or GraphQL)
+* UI wireframes (Figma-style structure)
+* Or full backend folder architecture (Node/Django)
+
+Just say:
+
+**“build architecture”** or **“design database schema”**
+____________________________________
+
+Below is a **production-grade SaaS architecture** for your Ads Platform, structured so it can scale from MVP → enterprise without rewrites. I’m going to treat this as a **modular monolith that can evolve into microservices**, which is the correct approach for your stage.
+
+---
+
+# 1. HIGH-LEVEL SYSTEM ARCHITECTURE
+
+### Core idea:
+
+Split the system into **6 independent domain services + shared infrastructure layer**
+
+```
+                 ┌──────────────────────┐
+                 │     Frontend App     │
+                 │ Next.js / React SaaS  │
+                 └─────────┬────────────┘
+                           │
+                    API Gateway Layer
+                           │
+┌────────────────────────────────────────────────────────┐
+│                APPLICATION CORE LAYER                  │
+└────────────────────────────────────────────────────────┘
+   │        │            │           │           │        │
+   ▼        ▼            ▼           ▼           ▼        ▼
+Auth     Campaign    Pricing     Payment     Media    Admin
+Service   Service     Engine      Service     Service  Service
+```
+
+---
+
+# 2. FRONTEND ARCHITECTURE (SaaS UX LAYER)
+
+### Stack:
+
+* Next.js (App Router)
+* TailwindCSS
+* Zustand / Redux Toolkit (state)
+* React Query (server state)
+
+---
+
+## Frontend Modules:
+
+### 1. Auth Module
+
+* Login / Signup wizard
+* OTP verification screen
+* Role-based routing
+
+---
+
+### 2. Campaign Builder (CORE UX)
+
+A **step-based wizard system**
+
+```
+/create-campaign
+   ├── step-1: type selection
+   ├── step-2: content builder
+   ├── step-3: targeting
+   ├── step-4: scheduling
+   ├── step-5: pricing summary
+   ├── step-6: payment
+   └── step-7: review & submit
+```
+
+State persistence:
+
+* Local draft storage (IndexedDB)
+* Server draft sync (autosave API)
+
+---
+
+### 3. Dashboard
+
+* Active campaigns
+* Drafts
+* Analytics (future)
+* Billing overview
+
+---
+
+# 3. BACKEND ARCHITECTURE
+
+You should implement a **modular monolith backend first**, structured like microservices internally.
+
+### Recommended stack:
+
+* Node.js (NestJS strongly recommended)
+* PostgreSQL
+* Redis (sessions, queues)
+* S3-compatible storage (images/videos)
+
+---
+
+# 4. CORE DOMAIN SERVICES
+
+---
+
+## 4.1 AUTH SERVICE
+
+### Responsibilities:
+
+* User registration
+* OTP verification (M-Pesa + SMS gateway integration)
+* Login/session management
+* Role handling:
+
+  * Individual
+  * Business
+  * Admin
+
+### Key tables:
+
+* users
+* user_profiles
+* otp_verifications
+* sessions
+
+---
+
+## 4.2 CAMPAIGN SERVICE (CORE ENGINE)
+
+### Responsibilities:
+
+* Campaign lifecycle management
+* Draft → Published flow
+* Campaign validation
+* Scheduling logic
+
+### Entities:
+
+* campaigns
+* campaign_content
+* campaign_media
+* campaign_schedule
+* campaign_status_logs
+
+### State machine:
+
+```
+DRAFT
+ → PENDING_PAYMENT
+ → PENDING_VERIFICATION
+ → PENDING_APPROVAL
+ → ACTIVE
+ → COMPLETED
+ → REJECTED
+```
+
+---
+
+## 4.3 PRICING ENGINE SERVICE (VERY IMPORTANT)
+
+This is where SaaS intelligence lives.
+
+### Responsibilities:
+
+* Dynamic pricing calculation
+* Rule-based cost engine
+* Pricing transparency breakdown
+
+---
+
+### Pricing formula (logical structure):
+
+```
+final_price =
+  base_price(ad_type)
+  × duration_multiplier
+  × frequency_multiplier
+  + add_on_costs
+```
+
+---
+
+### Rules:
+
+| Factor    | Logic                        |
+| --------- | ---------------------------- |
+| Ad Type   | Text < Image < Video         |
+| Duration  | >= 7 days base included      |
+| Frequency | All-day > Twice/day > Weekly |
+
+---
+
+### Output example:
+
+```json
+{
+  "base": 399,
+  "duration_multiplier": 1.4,
+  "frequency_multiplier": 1.2,
+  "final_price": 670,
+  "breakdown": {
+    "ad_type": "text",
+    "days": 10,
+    "frequency": "twice_daily"
+  }
+}
+```
+
+---
+
+## 4.4 PAYMENT SERVICE
+
+### Responsibilities:
+
+* M-Pesa STK push integration
+* PayPal API integration
+* Payment verification
+* Invoice generation
+
+---
+
+### Flow:
+
+```
+Campaign → Pricing Engine → Invoice → Payment Gateway → Verification → Campaign Activation
+```
+
+---
+
+### Tables:
+
+* payments
+* invoices
+* transactions
+* payment_methods
+
+---
+
+## 4.5 MEDIA SERVICE
+
+### Responsibilities:
+
+* Image uploads (max 4 per campaign)
+* Video uploads (max 5 min)
+* Compression + validation
+* CDN delivery
+
+---
+
+### Storage:
+
+* AWS S3 or Cloudflare R2
+
+---
+
+### Rules engine:
+
+* Image: 1:1 square enforced
+* Video: max duration 5 min
+* File size limits enforced server-side
+
+---
+
+## 4.6 ADMIN MODERATION SERVICE
+
+### Responsibilities:
+
+* Approve/reject campaigns
+* Content moderation
+* Audit logs
+* Policy enforcement
+
+---
+
+### Admin dashboard capabilities:
+
+* Campaign queue
+* User flags
+* Payment disputes
+* Manual overrides
+
+---
+
+# 5. DATABASE ARCHITECTURE (POSTGRESQL)
+
+## Core schema design
+
+### USERS
+
+* id
+* email
+* password_hash
+* phone
+* role
+* created_at
+
+---
+
+### BUSINESSES
+
+* id
+* user_id
+* name
+* type (individual/business/company)
+* county
+* is_nationwide
+
+---
+
+### CAMPAIGNS
+
+* id
+* user_id
+* type (text/image/video)
+* status
+* start_date
+* end_date
+* frequency
+* total_cost
+
+---
+
+### CAMPAIGN_CONTENT
+
+* id
+* campaign_id
+* text_content
+* media_urls (array)
+* video_url
+
+---
+
+### PAYMENTS
+
+* id
+* campaign_id
+* method
+* amount
+* status
+* transaction_ref
+
+---
+
+### APPROVALS
+
+* id
+* campaign_id
+* admin_id
+* status
+* notes
+
+---
+
+# 6. EVENT-DRIVEN LAYER (SCALING CORE)
+
+Use **event bus architecture** (Redis Pub/Sub or Kafka later)
+
+### Events:
+
+* `campaign.created`
+* `payment.completed`
+* `campaign.approved`
+* `campaign.published`
+* `media.uploaded`
+
+This allows:
+
+* decoupled services
+* async processing
+* scalability later
+
+---
+
+# 7. API GATEWAY LAYER
+
+Single entry point:
+
+```
+/api/auth/*
+/api/campaign/*
+/api/payment/*
+/api/media/*
+/api/admin/*
+```
+
+Responsibilities:
+
+* rate limiting
+* authentication middleware
+* request validation
+* logging
+
+---
+
+# 8. SECURITY LAYER (CRITICAL FOR SAAS)
+
+* JWT authentication
+* Refresh tokens
+* OTP verification gate
+* Input validation (Zod/Joi)
+* Role-based access control (RBAC)
+* Rate limiting per user/IP
+* Webhook signature validation (payments)
+
+---
+
+# 9. DEPLOYMENT ARCHITECTURE
+
+### Recommended setup:
+
+* Frontend: Vercel
+* Backend: AWS ECS / Railway / Render (MVP)
+* Database: AWS RDS (PostgreSQL)
+* Storage: S3 / Cloudflare R2
+* CDN: Cloudflare
+
+---
+
+# 10. SCALABILITY PATH (IMPORTANT)
+
+### Phase 1 (MVP)
+
+* Modular monolith backend
+* Single DB
+* Basic admin panel
+
+---
+
+### Phase 2 (Growth)
+
+* Split services:
+
+  * payment service
+  * media service
+
+---
+
+### Phase 3 (Scale)
+
+* Event-driven architecture
+* Kubernetes deployment
+* Multi-region delivery
+
+---
+
+# 11. WHAT MAKES THIS “WORLD CLASS”
+
+Your system is strong because it has:
+
+### 1. Deterministic pricing engine (rare in ad SaaS)
+
+### 2. Structured campaign lifecycle (state machine)
+
+### 3. Multi-channel payment integration (Africa-first advantage)
+
+### 4. Modular architecture (future-proof)
+
+### 5. Step-based UX (conversion optimized)
+
+---
+
+# If you want next step
+
+I can take this further into:
+
+* Full **NestJS folder structure**
+* Complete **database SQL schema**
+* **API endpoint definitions (REST spec)**
+* Or **Figma-level UI wireframe flow**
+
+Just say:
+**“build backend structure”** or **“design API spec”**
+___________________________________
+
+I’m going to implement **Section 4 (Core Domain Services)** as a **real backend blueprint with NestJS-style structure + key logic + service code skeletons** so you can actually start building immediately.
+
+I’ll assume:
+
+* NestJS backend
+* PostgreSQL (Prisma-style or TypeORM-neutral)
+* REST API (clean SaaS standard)
+
+---
+
+# 0. BACKEND STRUCTURE (BASE SCAFFOLD)
+
+```bash
+src/
+ ├── modules/
+ │    ├── auth/
+ │    ├── users/
+ │    ├── campaigns/
+ │    ├── pricing/
+ │    ├── payments/
+ │    ├── media/
+ │    ├── admin/
+ │
+ ├── common/
+ │    ├── guards/
+ │    ├── decorators/
+ │    ├── filters/
+ │    ├── utils/
+ │
+ ├── database/
+ ├── config/
+ └── main.ts
+```
+
+---
+
+# 1. AUTH SERVICE (IMPLEMENTATION)
+
+## Purpose
+
+Handles signup, login, OTP verification, roles.
+
+---
+
+## 1.1 Entity (User)
+
+```ts
+// users.entity.ts
+export class User {
+  id: string;
+  email: string;
+  passwordHash: string;
+  phone: string;
+  role: 'INDIVIDUAL' | 'BUSINESS' | 'ADMIN';
+  isVerified: boolean;
+  createdAt: Date;
+}
+```
+
+---
+
+## 1.2 Auth Service
+
+```ts
+@Injectable()
+export class AuthService {
+  constructor(
+    private usersRepo: UsersRepository,
+    private jwtService: JwtService,
+  ) {}
+
+  async signup(dto: SignupDto) {
+    const hash = await bcrypt.hash(dto.password, 10);
+
+    const user = await this.usersRepo.create({
+      email: dto.email,
+      phone: dto.phone,
+      passwordHash: hash,
+      role: dto.role,
+      isVerified: false,
+    });
+
+    await this.sendOtp(dto.phone);
+
+    return { message: 'OTP sent to phone', userId: user.id };
+  }
+
+  async verifyOtp(userId: string, code: string) {
+    const valid = await this.validateOtp(userId, code);
+
+    if (!valid) throw new Error('Invalid OTP');
+
+    await this.usersRepo.update(userId, { isVerified: true });
+
+    return { message: 'Account verified' };
+  }
+
+  async login(dto: LoginDto) {
+    const user = await this.usersRepo.findByEmail(dto.email);
+
+    if (!user) throw new Error('User not found');
+
+    const match = await bcrypt.compare(dto.password, user.passwordHash);
+
+    if (!match) throw new Error('Invalid credentials');
+
+    const token = this.jwtService.sign({ id: user.id, role: user.role });
+
+    return { token };
+  }
+
+  private async sendOtp(phone: string) {
+    // integrate SMS provider (M-Pesa / Africa's Talking)
+  }
+
+  private async validateOtp(userId: string, code: string) {
+    // verify OTP logic
+    return true;
+  }
+}
+```
+
+---
+
+# 2. CAMPAIGN SERVICE (CORE ENGINE)
+
+## Purpose
+
+Handles full campaign lifecycle + state machine.
+
+---
+
+## 2.1 Entity
+
+```ts
+export class Campaign {
+  id: string;
+  userId: string;
+
+  type: 'TEXT' | 'IMAGE' | 'VIDEO';
+
+  status:
+    | 'DRAFT'
+    | 'PENDING_PAYMENT'
+    | 'PENDING_VERIFICATION'
+    | 'PENDING_APPROVAL'
+    | 'ACTIVE'
+    | 'REJECTED'
+    | 'COMPLETED';
+
+  textContent: string;
+  mediaUrls: string[];
+  videoUrl: string;
+
+  startDate: Date;
+  endDate: Date;
+
+  frequency: 'ALL_DAY' | 'TWICE_DAILY' | 'THRICE_WEEK' | 'ONCE_WEEK';
+
+  totalCost: number;
+}
+```
+
+---
+
+## 2.2 Campaign Service
+
+```ts
+@Injectable()
+export class CampaignService {
+  constructor(
+    private campaignRepo: CampaignRepository,
+    private pricingService: PricingService,
+  ) {}
+
+  async createDraft(userId: string, dto: CreateCampaignDto) {
+    return this.campaignRepo.create({
+      userId,
+      type: dto.type,
+      status: 'DRAFT',
+      textContent: dto.textContent,
+      mediaUrls: dto.mediaUrls || [],
+      videoUrl: dto.videoUrl || null,
+    });
+  }
+
+  async calculatePricing(campaignId: string) {
+    const campaign = await this.campaignRepo.findById(campaignId);
+
+    const price = await this.pricingService.calculate({
+      type: campaign.type,
+      durationDays: this.getDuration(campaign),
+      frequency: campaign.frequency,
+    });
+
+    await this.campaignRepo.update(campaignId, {
+      totalCost: price.finalPrice,
+    });
+
+    return price;
+  }
+
+  async submitCampaign(campaignId: string) {
+    return this.campaignRepo.update(campaignId, {
+      status: 'PENDING_PAYMENT',
+    });
+  }
+
+  private getDuration(campaign: Campaign) {
+    return (
+      (campaign.endDate.getTime() - campaign.startDate.getTime()) /
+      (1000 * 60 * 60 * 24)
+    );
+  }
+}
+```
+
+---
+
+# 3. PRICING ENGINE (IMPORTANT LOGIC CORE)
+
+## Purpose
+
+Dynamic SaaS pricing rules engine.
+
+---
+
+## 3.1 Pricing Service
+
+```ts
+@Injectable()
+export class PricingService {
+  async calculate(input: {
+    type: 'TEXT' | 'IMAGE' | 'VIDEO';
+    durationDays: number;
+    frequency: string;
+  }) {
+    let base = this.getBasePrice(input.type);
+
+    let durationMultiplier = this.getDurationMultiplier(input.durationDays);
+
+    let frequencyMultiplier = this.getFrequencyMultiplier(input.frequency);
+
+    const finalPrice = base * durationMultiplier * frequencyMultiplier;
+
+    return {
+      base,
+      durationMultiplier,
+      frequencyMultiplier,
+      finalPrice,
+    };
+  }
+
+  private getBasePrice(type: string) {
+    switch (type) {
+      case 'TEXT':
+        return 399;
+      case 'IMAGE':
+        return 599;
+      case 'VIDEO':
+        return 899;
+    }
+  }
+
+  private getDurationMultiplier(days: number) {
+    if (days <= 7) return 1;
+    if (days <= 14) return 1.3;
+    return 1.6;
+  }
+
+  private getFrequencyMultiplier(freq: string) {
+    switch (freq) {
+      case 'ALL_DAY':
+        return 1.8;
+      case 'TWICE_DAILY':
+        return 1.4;
+      case 'THRICE_WEEK':
+        return 1.1;
+      case 'ONCE_WEEK':
+        return 1;
+    }
+  }
+}
+```
+
+---
+
+# 4. PAYMENT SERVICE (M-PESA + PAYPAL READY)
+
+## Purpose
+
+Handles payment lifecycle + verification + webhook processing.
+
+---
+
+## 4.1 Payment Entity
+
+```ts
+export class Payment {
+  id: string;
+  campaignId: string;
+  method: 'MPESA' | 'PAYPAL' | 'PAYLESS';
+  amount: number;
+  status: 'PENDING' | 'SUCCESS' | 'FAILED';
+  transactionRef: string;
+}
+```
+
+---
+
+## 4.2 Payment Service
+
+```ts
+@Injectable()
+export class PaymentService {
+  constructor(private paymentRepo: PaymentRepository) {}
+
+  async initiatePayment(dto: InitiatePaymentDto) {
+    const payment = await this.paymentRepo.create({
+      campaignId: dto.campaignId,
+      method: dto.method,
+      amount: dto.amount,
+      status: 'PENDING',
+    });
+
+    if (dto.method === 'MPESA') {
+      return this.initiateMpesa(dto.phone, dto.amount, payment.id);
+    }
+
+    if (dto.method === 'PAYPAL') {
+      return this.initiatePaypal(dto.amount, payment.id);
+    }
+
+    return payment;
+  }
+
+  async confirmPayment(transactionRef: string) {
+    return this.paymentRepo.updateByRef(transactionRef, {
+      status: 'SUCCESS',
+    });
+  }
+
+  private async initiateMpesa(phone: string, amount: number, ref: string) {
+    // STK push integration
+    return { message: 'STK push sent', ref };
+  }
+
+  private async initiatePaypal(amount: number, ref: string) {
+    // PayPal API integration
+    return { redirectUrl: 'paypal-checkout-url', ref };
+  }
+}
+```
+
+---
+
+# 5. MEDIA SERVICE (UPLOAD ENGINE)
+
+## Purpose
+
+Handles image/video validation + storage.
+
+---
+
+## 5.1 Media Service
+
+```ts
+@Injectable()
+export class MediaService {
+  async uploadImages(files: Express.Multer.File[]) {
+    if (files.length > 4) {
+      throw new Error('Max 4 images allowed');
+    }
+
+    return Promise.all(
+      files.map(file => this.uploadToS3(file)),
+    );
+  }
+
+  async uploadVideo(file: Express.Multer.File) {
+    const duration = await this.checkDuration(file);
+
+    if (duration > 300) {
+      throw new Error('Max video length is 5 minutes');
+    }
+
+    return this.uploadToS3(file);
+  }
+
+  private async uploadToS3(file: any) {
+    // S3 upload logic
+    return 'https://cdn-url/' + file.filename;
+  }
+
+  private async checkDuration(file: any) {
+    // FFmpeg validation
+    return 120;
+  }
+}
+```
+
+---
+
+# 6. ADMIN SERVICE (MODERATION SYSTEM)
+
+## Purpose
+
+Approval workflow before ads go live.
+
+---
+
+## 6.1 Admin Service
+
+```ts
+@Injectable()
+export class AdminService {
+  constructor(private campaignRepo: CampaignRepository) {}
+
+  async approveCampaign(campaignId: string) {
+    return this.campaignRepo.update(campaignId, {
+      status: 'ACTIVE',
+    });
+  }
+
+  async rejectCampaign(campaignId: string, reason: string) {
+    return this.campaignRepo.update(campaignId, {
+      status: 'REJECTED',
+    });
+  }
+
+  async getPendingCampaigns() {
+    return this.campaignRepo.find({
+      status: 'PENDING_APPROVAL',
+    });
+  }
+}
+```
+
+---
+
+# FINAL RESULT: WHAT YOU NOW HAVE
+
+You now effectively have a:
+
+### ✅ SaaS-ready backend architecture with:
+
+* Authentication system
+* Campaign lifecycle engine (state machine)
+* Pricing engine (rule-based SaaS logic)
+* Payment orchestration (M-Pesa + PayPal)
+* Media handling pipeline
+* Admin moderation system
+
+---
+
+# NEXT LOGICAL STEP (IMPORTANT)
+
+If you want to move fast like a real SaaS startup, the next implementation steps are:
+
+1. API routes (REST spec for every service)
+2. PostgreSQL schema (production-ready SQL)
+3. Frontend campaign wizard (Next.js UI flow)
+4. Payment webhook hardening (critical for M-Pesa)
+
+Just tell me:
+
+**“build API layer”** or **“build database schema”** or **“build frontend wizard”**

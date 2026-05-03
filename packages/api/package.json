@@ -1,0 +1,17 @@
+{
+  "name": "@ton/api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Database-backed API for Teachers Online Network prototype hardening.",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

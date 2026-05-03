@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Partner Signup - TON Ads</title><link rel="stylesheet" href="styles.css" /><link rel="stylesheet" href="shell.css" /></head>
+  <body data-page="partner-signup">
+    <div class="app-shell auth-locked partner-auth">
+      <header class="topbar"><div class="brand"><img class="brand-mark" id="brand-logo" src="logo/ton.png" alt="TON logo" /><div><strong id="brand-name">TON Growth Ads</strong><span id="brand-subtitle">Affordable visibility for African businesses</span></div></div></header>
+      <main class="content">
+        <section class="auth-panel route-card">
+          <div class="auth-copy"><p class="eyebrow">Get Your Business Seen</p><h1>Launch Professional Ads in Minutes</h1><p>Create a growth account and start reaching customers without hiring a marketing team.</p></div>
+          <div class="auth-card partner-signup-card">
+            <div class="auth-tabs"><button class="active" type="button" disabled>Start Getting Seen</button><button type="button" onclick="location.href='partner-login.html'">Sign In</button></div>
+            <div class="wizard-progress compact" id="partner-onboarding-progress"></div>
+            <form id="partner-signup-form" class="auth-form partner-onboarding-form">
+              <section class="onboarding-step active" data-onboarding-step="0">
+                <h3>1. Secure Your Growth Account</h3>
+                <div class="form-grid">
+                  <label>Email <input id="partner-signup-email" type="email" autocomplete="email" /><small></small></label>
+                  <label>Password <input id="partner-signup-password" type="password" /><small></small></label>
+                  <label>Confirm Password <input id="partner-signup-confirm-password" type="password" /><small></small></label>
+                  <label>Phone Number <input id="partner-signup-phone" type="tel" placeholder="+254712345678" /><small>OTP verification happens after profile setup.</small></label>
+                </div>
+              </section>
+              <section class="onboarding-step" data-onboarding-step="1">
+                <h3>2. Tell Us Who We Are Helping</h3>
+                <div class="choice-grid">
+                  <label><input type="radio" name="partner-account-type" value="individual" checked /><span><strong>Individual</strong><small>Personal advertiser, creator, freelancer, or consultant.</small></span></label>
+                  <label><input type="radio" name="partner-account-type" value="business" /><span><strong>Business</strong><small>Registered or informal business promoting products/services.</small></span></label>
+                  <label><input type="radio" name="partner-account-type" value="company" /><span><strong>Company</strong><small>Formal organization or institution with company campaigns.</small></span></label>
+                </div>
+              </section>
+              <section class="onboarding-step" data-onboarding-step="2">
+                <h3>3. Help Customers Understand You</h3>
+                <div class="form-grid">
+                  <label id="partner-display-name-label">Display / Entity Name <input id="partner-signup-entity-name" /></label>
+                  <label>Registration Number <input id="partner-signup-registration" placeholder="Optional for MVP" /></label>
+                  <label>Industry Category <select id="partner-signup-industry"><option>Education</option><option>Technology</option><option>Publishing</option><option>Finance</option><option>Training</option><option>Retail</option><option>Other</option></select></label>
+                  <label>Location County <select id="partner-signup-county"></select></label>
+                  <label class="checkbox-label"><input id="partner-signup-countrywide" type="checkbox" /><span>Nationwide (All Counties)</span></label>
+                  <label class="wide-field">Business / Personal Details <textarea id="partner-signup-entity-details" rows="4" placeholder="Briefly describe your services, products, or advertising niche."></textarea></label>
+                </div>
+              </section>
+              <section class="onboarding-step" data-onboarding-step="3">
+                <h3>4. Build Trust With Verification</h3>
+                <div class="otp-panel">
+                  <p>Enter the OTP sent to your phone. Use <strong>123456</strong> in this local prototype.</p>
+                  <label>OTP Code <input id="partner-signup-otp" inputmode="numeric" maxlength="6" /></label>
+                </div>
+              </section>
+              <section class="onboarding-step" data-onboarding-step="4">
+                <h3>5. Keep the Marketplace Trusted</h3>
+                <div class="terms-box">
+                  <p>Every promotion is verified so customers can trust what they see and serious businesses stand out.</p>
+                  <label class="checkbox-label"><input id="partner-signup-terms" type="checkbox" /><span>I accept the advertising policy and partner terms.</span></label>
+                </div>
+              </section>
+              <div class="wizard-actions"><button class="secondary" id="partner-onboarding-prev" type="button">Previous</button><button class="secondary" id="partner-onboarding-save" type="button">Save Progress</button><button id="partner-onboarding-next" type="button">Next</button><button id="partner-onboarding-submit" type="submit" hidden>Start Growing</button></div>
+              <div class="auth-message" id="page-message"></div>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="multipage.js"></script>
+  </body>
+</html>

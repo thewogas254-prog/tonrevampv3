@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In - Teachers Online Network</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="shell.css" />
+  </head>
+  <body data-page="login">
+    <div class="app-shell auth-locked">
+      <header class="topbar">
+        <div class="brand"><img class="brand-mark" id="brand-logo" src="logo/ton.png" alt="TON logo" /><div><strong id="brand-name">Teachers Online Network</strong><span id="brand-subtitle">Professional infrastructure for educators</span></div></div>
+      </header>
+      <main class="content">
+        <section class="auth-panel route-card">
+          <div class="auth-copy"><p class="eyebrow">Secure Access</p><h1>Sign In</h1><p>Access EasySwap, messages, marketplace, and creator tools with your verified account.</p></div>
+          <div class="auth-card">
+            <div class="auth-tabs"><button type="button" onclick="location.href='signup.html'">Create Account</button><button class="active" type="button" disabled>Sign In</button></div>
+            <form id="login-form" class="auth-form">
+              <div class="auth-mode-panel active">
+                <label>Email, Phone, or Handle <input id="login-identifier" autocomplete="username" value="klickviews2026!" /><small></small></label>
+                <label>Password <input id="login-password" type="password" autocomplete="current-password" value="Klickviews2026!" /><small></small></label>
+                <button type="submit">Sign In</button>
+              </div>
+              <div class="auth-message" id="page-message"></div>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="multipage.js"></script>
+  </body>
+</html>

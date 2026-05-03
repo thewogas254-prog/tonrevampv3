@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Create Account - TON</title><link rel="stylesheet" href="styles.css" /><link rel="stylesheet" href="shell.css" /></head>
+  <body data-page="signup">
+    <div class="app-shell auth-locked">
+      <header class="topbar"><div class="brand"><img class="brand-mark" id="brand-logo" src="logo/ton.png" alt="TON logo" /><div><strong id="brand-name">Teachers Online Network</strong><span id="brand-subtitle">Professional infrastructure for educators</span></div></div></header>
+      <main class="content">
+        <section class="auth-panel route-card">
+          <div class="auth-copy"><p class="eyebrow">Verified Account</p><h1>Create Account</h1><p>Register with email, Kenyan phone, and a strong password.</p></div>
+          <div class="auth-card">
+            <div class="auth-tabs"><button class="active" type="button" disabled>Create Account</button><button type="button" onclick="location.href='login.html'">Sign In</button></div>
+            <form id="signup-form" class="auth-form">
+              <div class="auth-mode-panel active">
+                <label>Email <input id="email" type="email" autocomplete="email" /><small></small></label>
+                <label>Confirm Email <input id="confirm-email" type="email" /><small></small></label>
+                <label>Phone <input id="phone" type="tel" placeholder="+254712345678" /><small></small></label>
+                <label>Confirm Phone <input id="confirm-phone" type="tel" /><small></small></label>
+                <label>Password <input id="password" type="password" /><small></small></label>
+                <label>Confirm Password <input id="confirm-password" type="password" /><small></small></label>
+                <button type="submit">Create Account</button>
+              </div>
+              <div class="auth-message" id="page-message"></div>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="multipage.js"></script>
+  </body>
+</html>

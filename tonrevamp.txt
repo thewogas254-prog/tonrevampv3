@@ -1,0 +1,727 @@
+Excellent. Since you already validated the concept with a live pilot, the strategy changes completely.
+
+You are no longer:
+
+* validating demand,
+* testing feasibility,
+* or searching for product-market fit.
+
+You are now engineering:
+
+* scalability,
+* reliability,
+* monetization,
+* security,
+* and long-term maintainability.
+
+That means we should approach this like a real SaaS platform architecture project.
+
+---
+
+# RECOMMENDED APPROACH
+
+We should build this in layers:
+
+| Layer                     | Goal                                   |
+| ------------------------- | -------------------------------------- |
+| Product Architecture      | Define the platform professionally     |
+| System Design             | Design scalable infrastructure         |
+| Database Engineering      | Build normalized relational models     |
+| Authentication & Security | SaaS-grade account management          |
+| Feature Modules           | Build independently deployable systems |
+| Monetization              | Revenue infrastructure                 |
+| Admin & Moderation        | Platform governance                    |
+| Deployment & DevOps       | Production infrastructure              |
+
+---
+
+# THE BEST STACK FOR THIS PLATFORM
+
+I strongly recommend:
+
+| Area               | Technology                    |
+| ------------------ | ----------------------------- |
+| Frontend           | Next.js 15                    |
+| UI                 | TailwindCSS + shadcn/ui       |
+| Backend            | NestJS                        |
+| Database           | PostgreSQL                    |
+| ORM                | Prisma                        |
+| Authentication     | Better Auth / Clerk / Auth.js |
+| Realtime Messaging | Socket.IO                     |
+| Storage            | Cloudflare R2                 |
+| CDN                | Cloudflare                    |
+| Search             | Meilisearch                   |
+| Payments           | M-Pesa Daraja                 |
+| Video Processing   | Cloudflare Stream             |
+| Notifications      | Firebase                      |
+| Deployment         | Docker + Coolify/VPS          |
+| Analytics          | PostHog                       |
+
+---
+
+# WHY NOT FIREBASE?
+
+Because your platform requires:
+
+* relational matching,
+* complex querying,
+* transactional logic,
+* wallet accounting,
+* moderation systems,
+* marketplace logic,
+* advanced search.
+
+PostgreSQL is vastly better for this architecture.
+
+---
+
+# CORE PLATFORM MODULES
+
+This platform should be modular.
+
+---
+
+# MODULE 1 — AUTHENTICATION SYSTEM
+
+## Features
+
+### User Registration
+
+* Email verification
+* Phone verification (OTP)
+* Password policy enforcement
+
+### Login
+
+* Email/password
+* Social auth later
+
+### Security
+
+* JWT rotation
+* Session management
+* Device tracking
+* Login alerts
+* Rate limiting
+
+---
+
+# MODULE 2 — PROFILE ENGINE
+
+This becomes the authoritative identity layer.
+
+---
+
+## Teacher Profile Structure
+
+```ts id="f3s5gh"
+type TeacherProfile = {
+  teachingLevel: "PRIMARY" | "SECONDARY";
+  subjectCombination?: string;
+  currentCounty: string;
+  currentSubCounty: string;
+  schoolName?: string;
+  bio?: string;
+  allowCalls: boolean;
+  allowMessages: boolean;
+};
+```
+
+---
+
+# IMPORTANT
+
+Subject combinations must be normalized.
+
+Never use free text.
+
+---
+
+# SUBJECT MODEL
+
+```ts id="1r5m5q"
+subjects
+- id
+- code
+- name
+```
+
+```ts id="0y5oh3"
+subject_combinations
+- id
+- subject_one_id
+- subject_two_id
+- normalized_name
+```
+
+---
+
+# MODULE 3 — SWAP ENGINE (THE CORE)
+
+This must be treated like a matchmaking engine.
+
+---
+
+# SWAP REQUEST MODEL
+
+```ts id="p1j7vt"
+swap_requests
+- id
+- user_id
+- current_county_id
+- desired_county_id
+- urgency
+- desired_move_month
+- is_active
+- created_at
+```
+
+---
+
+# MATCHING ENGINE LOGIC
+
+The engine should generate matches automatically.
+
+---
+
+# MATCH CONDITIONS
+
+```sql id="a8vqya"
+WHERE
+my.current_county = their.desired_county
+AND
+their.current_county = my.desired_county
+AND
+my.subject_combination = their.subject_combination
+AND
+my.level = their.level
+```
+
+---
+
+# ADVANCED FEATURES
+
+Later:
+
+* partial matches,
+* neighboring counties,
+* AI recommendations,
+* popularity scoring,
+* response scoring,
+* ghost-user detection.
+
+---
+
+# MODULE 4 — REALTIME MESSAGING
+
+This is not simple CRUD.
+
+You need:
+
+* websocket architecture,
+* presence,
+* typing indicators,
+* read receipts,
+* moderation.
+
+---
+
+# MESSAGE FEATURES
+
+## Must Have
+
+* DM threads
+* archive
+* delete
+* block
+* report
+* mute
+* unread counters
+
+---
+
+# FUTURE
+
+* voice notes
+* attachments
+* encrypted calls
+* in-app voice/video
+
+---
+
+# MODULE 5 — NOTIFICATION SYSTEM
+
+Event-driven architecture.
+
+---
+
+# Notification Events
+
+| Event                | Trigger          |
+| -------------------- | ---------------- |
+| New match            | Match created    |
+| New message          | DM received      |
+| Product sold         | Marketplace sale |
+| Withdrawal completed | Admin payout     |
+| Blog comment         | Engagement       |
+| Blog like            | Engagement       |
+
+---
+
+# Delivery Channels
+
+* in-app
+* push notifications
+* email
+* SMS later
+
+---
+
+# MODULE 6 — NEWS ENGINE
+
+Do NOT hardcode news.
+
+Use:
+
+* RSS ingestion,
+* AI summarization,
+* moderation pipeline.
+
+---
+
+# Categories
+
+* TSC
+* CBC
+* Cambridge
+* IB
+* STEM
+* Scholarships
+* Education Tech
+
+---
+
+# MODULE 7 — BLOG/VLOG ECOSYSTEM
+
+This should feel like:
+
+* Medium + YouTube lite.
+
+---
+
+# BLOG FEATURES
+
+* rich editor
+* tags
+* categories
+* comments
+* likes
+* shares
+* bookmarks
+* SEO pages
+
+---
+
+# VLOG FEATURES
+
+Do NOT host raw videos yourself initially.
+
+Use:
+
+* Cloudflare Stream,
+* Mux,
+* Bunny Stream.
+
+Otherwise storage costs will destroy the business.
+
+---
+
+# MODULE 8 — MARKETPLACE
+
+This is actually a digital product marketplace.
+
+Very different from physical ecommerce.
+
+---
+
+# PRODUCT TYPES
+
+```ts id="z4r0q2"
+enum ProductType {
+  EBOOK,
+  PAST_PAPER,
+  VIDEO_COURSE,
+  AUDIO_CLASS,
+  PODCAST,
+  SOFTWARE,
+  TEMPLATE,
+  WEBINAR
+}
+```
+
+---
+
+# IMPORTANT SECURITY
+
+All uploads must pass through:
+
+| Scan                 | Purpose            |
+| -------------------- | ------------------ |
+| Virus scan           | Malware prevention |
+| File type validation | Security           |
+| Size validation      | Abuse prevention   |
+| Copyright review     | Compliance         |
+
+---
+
+# MODULE 9 — WALLET & PAYOUT SYSTEM
+
+This is fintech territory.
+
+Treat it seriously.
+
+---
+
+# Wallet Ledger
+
+Never store balances directly as truth.
+
+Use:
+
+* immutable transactions,
+* accounting ledger.
+
+---
+
+# Example
+
+```ts id="e9l45c"
+wallet_transactions
+- id
+- user_id
+- type
+- amount
+- reference
+- status
+```
+
+---
+
+# Payout Flow
+
+```text
+Sale → Pending Balance → Holding Period → Withdrawable Balance → Mpesa Withdrawal
+```
+
+---
+
+# WHY HOLDING PERIOD?
+
+Prevents:
+
+* fraud,
+* disputes,
+* stolen content payouts.
+
+---
+
+# MODULE 10 — SEARCH ENGINE
+
+You absolutely need dedicated search.
+
+---
+
+# Use Meilisearch
+
+Search:
+
+* swaps,
+* blogs,
+* products,
+* users,
+* news.
+
+---
+
+# Features
+
+* autocomplete
+* typo tolerance
+* filters
+* ranking
+* indexing
+
+---
+
+# MODULE 11 — ADMIN PANEL
+
+This is mission-critical.
+
+---
+
+# Admin Capabilities
+
+## User Management
+
+* suspend
+* ban
+* verify
+* moderate
+
+## Content Moderation
+
+* blogs
+* comments
+* products
+* reports
+
+## Financial Management
+
+* withdrawals
+* disputes
+* payouts
+
+## Analytics
+
+* DAU
+* revenue
+* matches
+* engagement
+
+---
+
+# DATABASE ARCHITECTURE
+
+You should aim for:
+
+---
+
+# PostgreSQL + Prisma
+
+Why?
+
+Because you need:
+
+* relational integrity,
+* transactions,
+* joins,
+* constraints,
+* scalability.
+
+---
+
+# DEPLOYMENT STRATEGY
+
+DO NOT deploy this on cheap shared hosting.
+
+---
+
+# Production Setup
+
+| Service    | Recommendation     |
+| ---------- | ------------------ |
+| Frontend   | Vercel             |
+| Backend    | VPS                |
+| Database   | Managed PostgreSQL |
+| Storage    | R2                 |
+| CDN        | Cloudflare         |
+| Monitoring | Sentry             |
+| Logging    | BetterStack        |
+
+---
+
+# SCALABILITY DESIGN
+
+You should architect for:
+
+* 100k+ users,
+* realtime chat,
+* large media uploads,
+* search indexing,
+* notification queues.
+
+---
+
+# RECOMMENDED ARCHITECTURE STYLE
+
+You do NOT need microservices immediately.
+
+Start with:
+
+# Modular Monolith
+
+This is ideal.
+
+---
+
+# WHY?
+
+You get:
+
+* simplicity,
+* maintainability,
+* speed,
+* scalability.
+
+Then split services later if needed.
+
+---
+
+# SUGGESTED FOLDER STRUCTURE
+
+```txt id="mo5j9w"
+apps/
+  web/
+  api/
+
+packages/
+  ui/
+  database/
+  auth/
+  types/
+```
+
+---
+
+# MOST IMPORTANT BUSINESS DECISION
+
+Do NOT make this “social media for teachers.”
+
+Make it:
+
+# Professional infrastructure for educators.
+
+That positioning changes:
+
+* trust,
+* monetization,
+* partnerships,
+* seriousness,
+* adoption.
+
+---
+
+# WHAT WE SHOULD DO NEXT
+
+We are now at the:
+
+# Product Architecture Phase
+
+The next professional step is:
+
+---
+
+# STEP 1 — CREATE FULL SYSTEM SPECIFICATION
+
+We should define:
+
+1. User roles
+2. Permissions
+3. Database schema
+4. Page architecture
+5. API architecture
+6. Event system
+7. State management
+8. Monetization rules
+9. Moderation rules
+10. Notification flows
+
+---
+
+# THEN
+
+We proceed to:
+
+* UI/UX wireframes
+* Database schema
+* API contracts
+* Fullstack implementation
+
+---
+
+# MY RECOMMENDATION
+
+The smartest next step is:
+
+# Build the Software Requirements Specification (SRS)
+
+This becomes:
+
+* your blueprint,
+* your development reference,
+* your investor document,
+* your scaling guide.
+
+And for a SaaS-grade system, this document is absolutely essential before writing production code.
+______________________________________
+
+The foundational SaaS-grade Software Requirements Specification (SRS) for Teachers Online Network and EasySwap has been created.
+
+This document now serves as the:
+
+* product blueprint,
+* engineering reference,
+* architectural guide,
+* scaling framework,
+* and future investor/developer documentation.
+
+The next professional phase is:
+
+1. Database Architecture Design
+2. Full UI/UX Information Architecture
+3. API Contract Design
+4. Monorepo Project Structure
+5. Authentication & Authorization System
+6. Core Swap Matching Engine Implementation
+7. Admin & Moderation Design
+8. DevOps & Deployment Pipeline
+
+The most important next step is the database architecture because every other system depends on it.
+_____________________________________________________
+
+The SaaS-grade database architecture specification has now been implemented.
+
+This includes:
+
+* normalized PostgreSQL schema,
+* authentication models,
+* swap engine structure,
+* realtime messaging tables,
+* marketplace accounting system,
+* creator media infrastructure,
+* moderation systems,
+* wallet ledger architecture,
+* analytics logging,
+* indexing strategy,
+* scalability considerations.
+
+You now have:
+
+1. Product SRS
+2. Production Database Architecture
+
+The next critical implementation layer is:
+
+* System Architecture & Monorepo Structure
+* API Design
+* Prisma Schema
+* Authentication Flow
+* Frontend Information Architecture
+* UI/UX Wireframes
+* Realtime Messaging Architecture
+* Search Infrastructure
+* DevOps Pipeline
+
+The smartest next move is to implement the actual engineering architecture:
+
+* folder structure,
+* service boundaries,
+* backend modules,
+* API endpoints,
+* state management,
+* caching,
+* queues,
+* websocket flow,
+* deployment topology.
+
+That becomes the actual production blueprint developers can build from.

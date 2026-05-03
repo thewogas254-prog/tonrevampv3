@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Partner Sign In - TON Ads</title><link rel="stylesheet" href="styles.css" /><link rel="stylesheet" href="shell.css" /></head>
+  <body data-page="partner-login">
+    <div class="app-shell auth-locked partner-auth">
+      <header class="topbar"><div class="brand"><img class="brand-mark" id="brand-logo" src="logo/ton.png" alt="TON logo" /><div><strong id="brand-name">TON Growth Ads</strong><span id="brand-subtitle">Get seen by the right customers</span></div></div></header>
+      <main class="content">
+        <section class="auth-panel route-card">
+          <div class="auth-copy"><p class="eyebrow">Business Growth</p><h1>Get Back to Growing</h1><p>Return to your visibility dashboard, improve active promotions, and keep your business in front of the right people.</p></div>
+          <div class="auth-card">
+            <div class="auth-tabs"><button type="button" onclick="location.href='partner-signup.html'">Start Getting Seen</button><button class="active" type="button" disabled>Sign In</button></div>
+            <form id="partner-login-form" class="auth-form">
+              <div class="auth-mode-panel active">
+                <label>Partner Email <input id="partner-login-email" type="email" autocomplete="username" /><small></small></label>
+                <label>Password <input id="partner-login-password" type="password" autocomplete="current-password" /><small></small></label>
+                <button type="submit">Open Growth Dashboard</button>
+              </div>
+              <div class="auth-message" id="page-message"></div>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="multipage.js"></script>
+  </body>
+</html>
