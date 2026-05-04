@@ -20,6 +20,7 @@
           <div class="auth-message" id="page-message"></div>
           <div class="panel admin-tabs">
             <button type="button" class="active" data-admin-tab-button="users">Users</button>
+            <button type="button" data-admin-tab-button="admins">Admins</button>
             <button type="button" data-admin-tab-button="reports">Reports</button>
             <button type="button" data-admin-tab-button="reset-requests">Password Requests</button>
             <button type="button" data-admin-tab-button="news">News</button>
@@ -27,6 +28,15 @@
           <div class="panel admin-content active" data-admin-tab="users">
             <h3>User management</h3>
             <div id="admin-users-list"></div>
+          </div>
+          <div class="panel admin-content" data-admin-tab="admins">
+            <h3>Admin Management</h3>
+            <form id="admin-create-admin-form" class="form-grid">
+              <label>Email <input id="new-admin-email" type="email" required /></label>
+              <label>Password <input id="new-admin-password" type="password" required /></label>
+              <button type="submit">Create Admin</button>
+            </form>
+            <div id="admin-admins-list"></div>
           </div>
           <div class="panel admin-content" data-admin-tab="reports">
             <h3>Reports</h3>

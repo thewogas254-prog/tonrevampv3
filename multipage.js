@@ -412,20 +412,56 @@ function passwordIsStrong(password) {
 
 async function bootLogin() {
   bindPasswordToggles();
+  let currentMode = "teacher";
+
+  // Tab switching
+  $("#teacher-login-tab")?.addEventListener("click", () => {
+    currentMode = "teacher";
+    $$(".auth-mode-panel").forEach((p) => p.classList.toggle("active", p.dataset.mode === "teacher"));
+    $$(".auth-tabs button").forEach((b) => b.classList.toggle("active", b.dataset.loginMode === "teacher"));
+    clearPageMessage();
+  });
+
+  $("#admin-login-tab")?.addEventListener("click", () => {
+    currentMode = "admin";
+    $$(".auth-mode-panel").forEach((p) => p.classList.toggle("active", p.dataset.mode === "admin"));
+    $$(".auth-tabs button").forEach((b) => b.classList.toggle("active", b.dataset.loginMode === "admin"));
+    clearPageMessage();
+  });
+
+  // Teacher login
   $("#login-identifier")?.addEventListener("input", clearPageMessage);
   $("#login-password")?.addEventListener("input", clearPageMessage);
+
+  // Admin login
+  $("#admin-email")?.addEventListener("input", clearPageMessage);
+  $("#admin-password")?.addEventListener("input", clearPageMessage);
+
   $("#login-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
-      const data = await api("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({
-          identifier: $("#login-identifier").value.trim(),
-          password: $("#login-password").value
-        })
-      });
-      localStorage.setItem("ton_auth_token", data.token);
-      window.location.href = data.profile?.profileCompleted ? "/swap" : "/profile";
+      if (currentMode === "admin") {
+        const data = await api("/auth/admin-login", {
+          method: "POST",
+          body: JSON.stringify({
+            email: $("#admin-email").value.trim().toLowerCase(),
+            password: $("#admin-password").value
+          })
+        });
+        localStorage.setItem("ton_auth_token", data.token);
+        localStorage.setItem("ton_admin_role", data.adminRole || "ADMIN");
+        window.location.href = "/admin";
+      } else {
+        const data = await api("/auth/login", {
+          method: "POST",
+          body: JSON.stringify({
+            identifier: $("#login-identifier").value.trim(),
+            password: $("#login-password").value
+          })
+        });
+        localStorage.setItem("ton_auth_token", data.token);
+        window.location.href = data.profile?.profileCompleted ? "/swap" : "/profile";
+      }
     } catch (error) {
       setMessage(error.message);
     }
@@ -1686,6 +1722,7 @@ async function bootAdmin() {
   const usersList = $("#admin-users-list");
   const reportsList = $("#admin-reports-list");
   const passwordRequestsList = $("#admin-password-requests-list");
+  const adminsList = $("#admin-admins-list");
   const newsForm = $("#admin-news-form");
   const contentPanels = $$("[data-admin-tab]");
   const tabButtons = $$("[data-admin-tab-button]");
@@ -1771,13 +1808,302 @@ async function bootAdmin() {
     });
   }
 
+  async function refreshAdmins() {
+    const data = await api("/api/admin/users").catch((error) => { setMessage(error.message, "error"); return { users: [] }; });
+    const admins = data.users.filter(user => user.role === "ADMIN");
+    if (!adminsList) return;
+    adminsList.innerHTML = admins.map((admin) => `
+      <article class="list-item">
+        <div>
+          <h4>${escapeHtml(admin.email)}</h4>
+          <p>Admin Account</p>
+          <div class="inline-tags"><span>${escapeHtml(admin.accountStatus)}</span></div>
+        </div>
+        <div class="list-actions">
+          ${localStorage.getItem("ton_admin_role") === "ADMIN" ? `<button type="button" data-action="delete-admin" data-admin-id="${admin.id}">Delete Admin</button>` : ""}
+        </div>
+      </article>
+    `).join("");
+  }
+
   newsForm?.addEventListener("submit", (event) => {
     event.preventDefault();
     setMessage("News item created for review and publishing.", "success");
     newsForm.reset();
   });
 
-  await Promise.all([refreshUsers(), refreshReports(), refreshPasswordRequests()]);
+  await Promise.all([refreshUsers(), refreshAdmins(), refreshReports(), refreshPasswordRequests()]);
+
+  // Admin creation form
+  const createAdminForm = $("#admin-create-admin-form");
+  if (createAdminForm) {
+    createAdminForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = $("#new-admin-email").value.trim();
+      const password = $("#new-admin-password").value.trim();
+
+      if (!email || !password) {
+        setMessage("Email and password are required.", "error");
+        return;
+      }
+
+      try {
+        await api("/admin/admins", "POST", { email, password });
+        setMessage("Admin created successfully.", "success");
+        createAdminForm.reset();
+        await refreshAdmins();
+      } catch (error) {
+        setMessage(error.message || "Failed to create admin.", "error");
+      }
+    });
+  }
+
+  // Delete admin buttons
+  document.addEventListener("click", async (e) => {
+    if (e.target.matches("[data-action='delete-admin']")) {
+      const adminId = e.target.dataset.adminId;
+      if (confirm("Are you sure you want to delete this admin?")) {
+        try {
+          await api(`/admin/admins/${adminId}`, "DELETE");
+          setMessage("Admin deleted successfully.", "success");
+          await refreshAdmins();
+        } catch (error) {
+          setMessage(error.message || "Failed to delete admin.", "error");
+        }
+      }
+    }
+  });
+}
+
+function bootCreatorStudio() {
+  const form = $("#content-form");
+  const editorToolbar = $(".editor-toolbar");
+  const editorContent = $("#editor-content");
+  const mediaUploads = $("#media-uploads");
+  const contentTypeBtns = $$(".content-type-btn");
+  const tabBtns = $$(".tab-btn");
+  const studioPanels = $$(".studio-panel");
+  let currentContentType = "blog";
+  let mediaFiles = [];
+
+  if (!form) return;
+
+  // Content type switching
+  contentTypeBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      currentContentType = btn.dataset.type;
+      contentTypeBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      
+      // Show/hide type-specific controls
+      $("#podcast-controls").style.display = currentContentType === "podcast" ? "block" : "none";
+      $("#vlog-controls").style.display = currentContentType === "vlog" ? "block" : "none";
+      
+      // Toggle media fields
+      editorToolbar.style.display = currentContentType === "blog" ? "flex" : "none";
+      editorContent.style.display = currentContentType === "blog" ? "block" : "none";
+    });
+  });
+
+  // Tab switching
+  tabBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tabName = btn.dataset.tab;
+      tabBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      studioPanels.forEach((p) => p.classList.remove("active"));
+      const targetPanel = $(`#${tabName}-panel`);
+      if (targetPanel) targetPanel.classList.add("active");
+      
+      if (tabName === "drafts") refreshContentList("drafts");
+      if (tabName === "published") refreshContentList("published");
+      if (tabName === "analytics") refreshAnalytics();
+    });
+  });
+
+  // Editor toolbar commands
+  editorToolbar?.querySelectorAll("[data-command]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const command = btn.dataset.command;
+      if (command === "createLink") {
+        const url = prompt("Enter URL:");
+        if (url) document.execCommand("createLink", false, url);
+      } else if (command === "insertImage") {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.addEventListener("change", (ev) => {
+          const file = ev.target.files?.[0];
+          if (file) handleMediaUpload(file, "image");
+        });
+        input.click();
+      } else {
+        document.execCommand(command, false, null);
+      }
+    });
+  });
+
+  // Add media button
+  $("#add-media-btn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = currentContentType === "vlog" ? "video/*" : currentContentType === "podcast" ? "audio/*" : "image/*";
+    input.addEventListener("change", (ev) => {
+      const file = ev.target.files?.[0];
+      if (file) handleMediaUpload(file, currentContentType === "vlog" ? "video" : currentContentType === "podcast" ? "audio" : "image");
+    });
+    input.click();
+  });
+
+  // Handle media uploads
+  function handleMediaUpload(file, type) {
+    const maxSize = type === "video" ? 500 * 1024 * 1024 : type === "audio" ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return setMessage(`File too large. Maximum ${type === "video" ? "500MB" : type === "audio" ? "100MB" : "10MB"} allowed.`);
+    }
+    
+    mediaFiles.push({ name: file.name, type, size: file.size });
+    renderMediaPreview();
+    setMessage(`${type} uploaded: ${file.name}`, "success");
+  }
+
+  // Render media preview
+  function renderMediaPreview() {
+    if (!mediaUploads) return;
+    mediaUploads.innerHTML = mediaFiles.map((media, idx) => `
+      <div class="media-item">
+        <span>${escapeHtml(media.name)} (${(media.size / (1024 * 1024)).toFixed(2)} MB)</span>
+        <button type="button" data-remove-media="${idx}" class="btn-secondary">Remove</button>
+      </div>
+    `).join("");
+    
+    mediaUploads.querySelectorAll("[data-remove-media]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const idx = Number(btn.dataset.removeMedia);
+        mediaFiles.splice(idx, 1);
+        renderMediaPreview();
+      });
+    });
+  }
+
+  // Content list functions
+  function refreshContentList(status) {
+    const storage = JSON.parse(localStorage.getItem("ton_creator_content") || "[]");
+    const filtered = storage.filter((c) => c.status === status);
+    const listId = status === "drafts" ? "#drafts-list" : "#published-list";
+    const list = $(listId);
+    if (!list) return;
+    list.innerHTML = filtered.map((item, idx) => `
+      <article class="content-item">
+        <h4>${escapeHtml(item.title)}</h4>
+        <p>${escapeHtml(item.description)}</p>
+        <div class="content-meta">
+          <span>${item.topic}</span>
+          <span>${new Date(item.createdAt).toLocaleDateString()}</span>
+        </div>
+        <div class="content-actions">
+          ${status === "drafts" ? `<button class="btn-secondary" data-edit-content="${idx}">Edit</button>` : ""}
+          <button class="btn-secondary" data-delete-content="${idx}">Delete</button>
+        </div>
+      </article>
+    `).join("");
+
+    list.querySelectorAll("[data-edit-content], [data-delete-content]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const idx = Number(btn.dataset.editContent ?? btn.dataset.deleteContent);
+        if (btn.dataset.deleteContent !== undefined) {
+          filtered.splice(idx, 1);
+          const allContent = storage.filter((c) => c.status !== status).concat(filtered);
+          localStorage.setItem("ton_creator_content", JSON.stringify(allContent));
+          refreshContentList(status);
+          setMessage("Content deleted.", "success");
+        }
+      });
+    });
+  }
+
+  // Analytics
+  function refreshAnalytics() {
+    const storage = JSON.parse(localStorage.getItem("ton_creator_content") || "[]");
+    const published = storage.filter((c) => c.status === "published");
+    const grid = $("#analytics-grid");
+    if (!grid) return;
+    grid.innerHTML = published.map((item) => `
+      <div class="analytics-card">
+        <h4>${escapeHtml(item.title)}</h4>
+        <div class="stat"><span>Views</span><strong>${Math.floor(Math.random() * 5000)}</strong></div>
+        <div class="stat"><span>Likes</span><strong>${Math.floor(Math.random() * 500)}</strong></div>
+        <div class="stat"><span>Comments</span><strong>${Math.floor(Math.random() * 100)}</strong></div>
+      </div>
+    `).join("");
+  }
+
+  // Form submission
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const title = $("#content-title").value.trim();
+    const topic = $("#content-topic").value;
+    const description = $("#content-description").value.trim();
+    const tags = $("#content-tags").value.split(",").map((t) => t.trim()).filter(Boolean);
+    const content = editorContent?.textContent || "";
+
+    if (!title) return setMessage("Content title is required.");
+    if (!description) return setMessage("Description is required.");
+    if (currentContentType === "blog" && !content) return setMessage("Write some content for your blog.");
+    if ((currentContentType === "vlog" || currentContentType === "podcast") && !mediaFiles.length) {
+      return setMessage(`Upload a ${currentContentType === "vlog" ? "video" : "audio"} file for your ${currentContentType}.`);
+    }
+
+    const item = {
+      id: Date.now(),
+      type: currentContentType,
+      title,
+      topic,
+      description,
+      tags,
+      content,
+      media: mediaFiles,
+      status: "draft",
+      createdAt: new Date().toISOString()
+    };
+
+    const storage = JSON.parse(localStorage.getItem("ton_creator_content") || "[]");
+    storage.unshift(item);
+    localStorage.setItem("ton_creator_content", JSON.stringify(storage));
+
+    setMessage(`${currentContentType.charAt(0).toUpperCase() + currentContentType.slice(1)} saved as draft.`, "success");
+    form.reset();
+    mediaFiles = [];
+    renderMediaPreview();
+    editorContent.textContent = "";
+  });
+
+  // Draft save button
+  $("#save-draft-btn")?.addEventListener("click", () => form.dispatchEvent(new Event("submit")));
+
+  // Publish button
+  $("#publish-btn")?.addEventListener("click", () => {
+    if (form.checkValidity()) {
+      const storage = JSON.parse(localStorage.getItem("ton_creator_content") || "[]");
+      if (storage.length > 0) {
+        storage[0].status = "published";
+        localStorage.setItem("ton_creator_content", JSON.stringify(storage));
+        setMessage("Content published successfully!", "success");
+        form.reset();
+        mediaFiles = [];
+        renderMediaPreview();
+      }
+    }
+  });
+
+  // Preview button
+  $("#preview-btn")?.addEventListener("click", () => {
+    setMessage("Preview panel will show a rendered version of your content.", "success");
+  });
 }
 
 function bindMessageActions() {
@@ -1847,6 +2173,7 @@ async function boot() {
   if (page === "matches") await bootMatches();
   if (page === "messages") await bootMessages();
   if (page === "my-shop") await bootMyShop();
+  if (page === "creator-studio") bootCreatorStudio();
   if (page === "other-matches") await bootOtherMatches();
   if (page === "admin") await bootAdmin();
   if (page === "forgot-password") await bootForgotPassword();

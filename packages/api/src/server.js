@@ -272,6 +272,33 @@ app.post("/api/auth/login", async (req, res, next) => {
   }
 });
 
+app.post("/api/auth/admin-login", async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: "Email and password required." });
+
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() }
+    });
+
+    if (!user || user.role !== "ADMIN" || !verifyPassword(password, user.passwordHash)) {
+      return res.status(401).json({ error: "Invalid admin credentials." });
+    }
+
+    if (user.accountStatus === "SUSPENDED") {
+      return res.status(403).json({ error: "Admin account suspended." });
+    }
+
+    res.json({
+      token: signUser(user),
+      adminRole: user.role,
+      user: publicUser(user)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/api/partner/register", async (req, res, next) => {
   try {
     const email = String(req.body.email || "").trim().toLowerCase();
@@ -803,6 +830,62 @@ app.get("/api/admin/password-reset-requests", authRequired, adminRequired, async
       createdAt: entry.createdAt.toISOString(),
       processedAt: entry.processedAt?.toISOString() || null
     })) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/admin/admins", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: "Email and password required." });
+
+    // Only super admin can create admins
+    if (req.auth.role !== "ADMIN") {
+      return res.status(403).json({ error: "Only super admin can create admin accounts." });
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    if (existingUser) return res.status(400).json({ error: "User already exists." });
+
+    const newAdmin = await prisma.user.create({
+      data: {
+        email: email.toLowerCase(),
+        passwordHash: hashPassword(password),
+        role: "ADMIN",
+        emailVerified: true,
+        phoneVerified: true,
+        accountStatus: "ACTIVE"
+      }
+    });
+
+    res.json({ admin: publicUser(newAdmin) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete("/api/admin/admins/:adminId", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const adminId = req.params.adminId;
+
+    // Only super admin can delete admins
+    if (req.auth.role !== "ADMIN") {
+      return res.status(403).json({ error: "Only super admin can create admin accounts." });
+    }
+
+    // Prevent deleting self
+    if (req.auth.sub === adminId) {
+      return res.status(400).json({ error: "Cannot delete your own admin account." });
+    }
+
+    const admin = await prisma.user.findUnique({ where: { id: adminId } });
+    if (!admin || admin.role !== "ADMIN") {
+      return res.status(404).json({ error: "Admin not found." });
+    }
+
+    await prisma.user.delete({ where: { id: adminId } });
+    res.json({ message: "Admin deleted successfully." });
   } catch (error) {
     next(error);
   }

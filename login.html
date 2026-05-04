@@ -16,9 +16,13 @@
         <section class="auth-panel route-card">
           <div class="auth-copy"><p class="eyebrow">Secure Access</p><h1>Sign In</h1><p>Access EasySwap, messages, marketplace, and creator tools with your verified account.</p></div>
           <div class="auth-card">
-            <div class="auth-tabs"><button type="button" onclick="location.href='/signup'">Create Account</button><button class="active" type="button" disabled>Sign In</button></div>
+            <div class="auth-tabs">
+              <button type="button" onclick="location.href='/signup'">Create Account</button>
+              <button type="button" class="active" data-login-mode="teacher" id="teacher-login-tab">Teacher Sign In</button>
+              <button type="button" data-login-mode="admin" id="admin-login-tab">Admin Sign In</button>
+            </div>
             <form id="login-form" class="auth-form">
-              <div class="auth-mode-panel active">
+              <div class="auth-mode-panel active" data-mode="teacher">
                 <label>Email, Phone, or Handle <input id="login-identifier" autocomplete="username" value="" /><small></small></label>
                 <label>Password
                   <div class="password-field">
@@ -28,6 +32,17 @@
                   <small></small>
                 </label>
                 <button type="submit">Sign In</button>
+              </div>
+              <div class="auth-mode-panel" data-mode="admin">
+                <label>Admin Email <input id="admin-email" autocomplete="username" value="" /><small></small></label>
+                <label>Password
+                  <div class="password-field">
+                    <input id="admin-password" type="password" autocomplete="current-password" value="" />
+                    <button type="button" data-password-toggle="admin-password">Show</button>
+                  </div>
+                  <small></small>
+                </label>
+                <button type="submit">Admin Sign In</button>
               </div>
               <div class="auth-message" id="page-message"></div>
             </form>

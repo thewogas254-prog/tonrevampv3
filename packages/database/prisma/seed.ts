@@ -548,6 +548,22 @@ async function main() {
       compatibilityScore: 100
     }
   });
+
+  // Seed super admin
+  const superAdmin = await prisma.user.upsert({
+    where: { email: "vinwoga@gmail.com" },
+    update: {},
+    create: {
+      email: "vinwoga@gmail.com",
+      phoneNumber: "+254716226416",
+      passwordHash: `scrypt$${scryptSync("Klickviews2026@", "admin-seed-salt", 64).toString("hex").slice(0, 16)}$${scryptSync("Klickviews2026@", "admin-seed-salt", 64).toString("hex")}`,
+      role: "ADMIN",
+      emailVerified: true,
+      phoneVerified: true,
+      createdAt: new Date()
+    }
+  });
+  console.log("Super admin created:", superAdmin.email);
 }
 
 main()
