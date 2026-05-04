@@ -62,7 +62,8 @@ const navTargets = {
   "other-matches": "/other-matches",
   "admin": "/admin",
   "forgot-password": "/forgot-password",
-  "creator-studio": "/creator-studio"
+  "creator-studio": "/creator-studio",
+  "my-blog": "/creator-studio"
 };
 
 const counties = [

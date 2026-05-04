@@ -3,14 +3,19 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const { PrismaClient, TeachingLevel, UrgencyStatus, UserRole, PartnerAccountType, AccountStatus } = require("../../database/node_modules/@prisma/client");
+const { PrismaClient, TeachingLevel, UrgencyStatus, UserRole, PartnerAccountType, AccountStatus } = require("@prisma/client");
 
 dotenv.config();
 
 const prisma = new PrismaClient();
 const app = express();
 const port = Number(process.env.PORT || 4000);
-const jwtSecret = process.env.JWT_SECRET || "development-only-secret";
+const jwtSecret = process.env.JWT_SECRET;
+
+if (!jwtSecret) {
+  console.error("Missing JWT_SECRET environment variable. Set JWT_SECRET before starting the API.");
+  process.exit(1);
+}
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
