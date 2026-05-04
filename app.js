@@ -48,11 +48,230 @@ const news = [
 ];
 
 const blogs = [
-  { title: "How to prepare a strong transfer request", topic: "TSC", format: "Blog", stats: "1.9k reads" },
-  { title: "CBC science practicals using local materials", topic: "CBC", format: "Vlog", stats: "420 likes" },
-  { title: "Teaching English set books with podcasts", topic: "Literature", format: "Podcast", stats: "860 plays" },
-  { title: "Making Form 2 maths revision less abstract", topic: "STEM", format: "Blog", stats: "312 comments" },
-  { title: "Video lessons, tutorials, and CPD sessions", topic: "Video", format: "Video", stats: "Open video hub" }
+  {
+    id: "transfer-request-guide",
+    title: "How to prepare a strong transfer request",
+    topic: "TSC",
+    format: "Blog",
+    author: "Mary Achieng",
+    date: "2026-05-01",
+    stats: "1.9k reads",
+    likes: 245,
+    comments: 23,
+    shares: 12,
+    content: `
+      <h2>Understanding the TSC Transfer Process</h2>
+      <p>The Teachers Service Commission (TSC) transfer process can be complex, but with proper preparation, you can significantly increase your chances of a successful transfer. This guide covers everything you need to know.</p>
+
+      <h3>Step 1: Research Your Options</h3>
+      <p>Before submitting a transfer request, research the counties and schools you're interested in. Consider factors like:</p>
+      <ul>
+        <li>Cost of living in the target county</li>
+        <li>School performance and resources</li>
+        <li>Proximity to family and support networks</li>
+        <li>Availability of housing</li>
+      </ul>
+
+      <h3>Step 2: Prepare Your Documentation</h3>
+      <p>Ensure you have all required documents ready:</p>
+      <ul>
+        <li>Current appointment letter</li>
+        <li>Academic certificates</li>
+        <li>Medical reports (if applicable)</li>
+        <li>Marriage certificate (for spousal transfers)</li>
+        <li>Children's birth certificates (for family transfers)</li>
+      </ul>
+
+      <h3>Step 3: Submit Your Application</h3>
+      <p>Use the TSC online portal to submit your application. Make sure to:</p>
+      <ul>
+        <li>Fill all fields accurately</li>
+        <li>Attach all required documents</li>
+        <li>Write a compelling reason for transfer</li>
+        <li>Proofread before submitting</li>
+      </ul>
+
+      <h3>Common Mistakes to Avoid</h3>
+      <p>Many transfer applications are rejected due to these common errors:</p>
+      <ul>
+        <li>Incomplete documentation</li>
+        <li>Poorly written transfer reasons</li>
+        <li>Applying to restricted counties without valid grounds</li>
+        <li>Missing deadlines</li>
+      </ul>
+    `,
+    comments: [
+      {
+        id: "comment1",
+        author: "Peter Mwangi",
+        text: "This guide was really helpful! I submitted my transfer last week.",
+        likes: 5,
+        replies: 2,
+        timestamp: "2026-05-02T10:30:00Z"
+      },
+      {
+        id: "comment2",
+        author: "Faith Wanjiku",
+        text: "Can you elaborate on the medical transfer requirements?",
+        likes: 3,
+        replies: 1,
+        timestamp: "2026-05-03T14:15:00Z"
+      }
+    ]
+  },
+  {
+    id: "cbc-practicals",
+    title: "CBC science practicals using local materials",
+    topic: "CBC",
+    format: "Vlog",
+    author: "Faith Wanjiku",
+    date: "2026-04-28",
+    stats: "420 likes",
+    likes: 420,
+    comments: 18,
+    shares: 25,
+    content: `
+      <h2>Making Science Practical with Local Resources</h2>
+      <p>Competency Based Curriculum (CBC) emphasizes hands-on learning, but many schools lack expensive laboratory equipment. This guide shows how to conduct effective science practicals using locally available materials.</p>
+
+      <h3>Why Local Materials Matter</h3>
+      <p>Using local materials has several advantages:</p>
+      <ul>
+        <li>Cost-effective and sustainable</li>
+        <li>Easier to source and replace</li>
+        <li>More relatable to students' daily lives</li>
+        <li>Encourages creativity and innovation</li>
+      </ul>
+
+      <h3>Grade 7 Physics: Simple Machines</h3>
+      <p>Materials needed: sticks, strings, stones, bottle caps</p>
+      <p>Activities:</p>
+      <ul>
+        <li>Build a lever using a stick and stone</li>
+        <li>Create a pulley system with strings and bottle caps</li>
+        <li>Construct an inclined plane with wooden planks</li>
+      </ul>
+
+      <h3>Grade 8 Chemistry: Acids and Bases</h3>
+      <p>Materials needed: lemons, soap, baking soda, red cabbage</p>
+      <p>Activities:</p>
+      <ul>
+        <li>Test natural indicators with lemon juice and soap</li>
+        <li>Observe reactions between baking soda and vinegar</li>
+        <li>Extract pigments from red cabbage for pH testing</li>
+      </ul>
+    `,
+    comments: [
+      {
+        id: "comment1",
+        author: "Tom Omondi",
+        text: "Great practical ideas! The red cabbage indicator is brilliant.",
+        likes: 12,
+        replies: 3,
+        timestamp: "2026-04-29T09:20:00Z"
+      }
+    ]
+  },
+  {
+    id: "english-set-books",
+    title: "Teaching English set books with podcasts",
+    topic: "Literature",
+    format: "Podcast",
+    author: "Daniel Otieno",
+    date: "2026-04-25",
+    stats: "860 plays",
+    likes: 156,
+    comments: 31,
+    shares: 8,
+    content: `
+      <h2>Modern Approaches to Teaching Literature</h2>
+      <p>Traditional methods of teaching set books can be dry and disengaging. This podcast explores innovative ways to bring literature to life for modern students.</p>
+
+      <h3>Episode 1: Audio Analysis Techniques</h3>
+      <p>Using podcasts to analyze character development and themes:</p>
+      <ul>
+        <li>Record student discussions and analysis</li>
+        <li>Create audio essays on character motivations</li>
+        <li>Podcast-style book reviews and critiques</li>
+      </ul>
+
+      <h3>Episode 2: Digital Storytelling</h3>
+      <p>Combining traditional texts with modern technology:</p>
+      <ul>
+        <li>Video adaptations of key scenes</li>
+        <li>Audio drama productions</li>
+        <li>Interactive online discussions</li>
+      </ul>
+
+      <h3>Episode 3: Assessment Innovation</h3>
+      <p>New ways to evaluate literature understanding:</p>
+      <ul>
+        <li>Podcast-style oral examinations</li>
+        <li>Creative audio projects</li>
+        <li>Peer review through recorded feedback</li>
+      </ul>
+    `,
+    comments: [
+      {
+        id: "comment1",
+        author: "Grace Wairimu",
+        text: "The podcast format is perfect for literature analysis!",
+        likes: 8,
+        replies: 1,
+        timestamp: "2026-04-26T16:45:00Z"
+      }
+    ]
+  },
+  {
+    id: "maths-revision",
+    title: "Making Form 2 maths revision less abstract",
+    topic: "STEM",
+    format: "Blog",
+    author: "Tom Omondi",
+    date: "2026-04-20",
+    stats: "312 comments",
+    likes: 89,
+    comments: 312,
+    shares: 15,
+    content: `
+      <h2>Concrete Strategies for Abstract Mathematics</h2>
+      <p>Form 2 mathematics introduces abstract concepts that can be challenging for students. This guide provides practical strategies to make these concepts more accessible and engaging.</p>
+
+      <h3>Understanding Functions</h3>
+      <p>Functions can be intimidating, but they're just relationships between inputs and outputs. Use real-world examples:</p>
+      <ul>
+        <li>Cooking recipes (ingredients → meal)</li>
+        <li>Mobile phone tariffs (minutes → cost)</li>
+        <li>Distance calculations (speed × time = distance)</li>
+      </ul>
+
+      <h3>Visualizing Quadratic Equations</h3>
+      <p>Make quadratics tangible with physical models:</p>
+      <ul>
+        <li>Use rope to demonstrate parabolas</li>
+        <li>Build quadratic graphs with string and pins</li>
+        <li>Create physical models of quadratic relationships</li>
+      </ul>
+
+      <h3>Probability with Games</h3>
+      <p>Turn probability into an interactive experience:</p>
+      <ul>
+        <li>Classroom games with dice and cards</li>
+        <li>Probability experiments with coins and spinners</li>
+        <li>Real-world applications like weather forecasting</li>
+      </ul>
+    `,
+    comments: [
+      {
+        id: "comment1",
+        author: "Sarah Kiprop",
+        text: "The rope parabola demonstration is genius!",
+        likes: 15,
+        replies: 4,
+        timestamp: "2026-04-21T11:30:00Z"
+      }
+    ]
+  }
 ];
 
 const videos = [
@@ -166,7 +385,138 @@ const state = {
   swapRequest: null,
   activeNewsCategory: "TSC",
   activeVideoTopic: "All",
-  activeVideoId: "cbc-science-practicals"
+  activeVideoId: "cbc-science-practicals",
+  chat: {
+    conversations: [
+      {
+        id: "mary-achieng",
+        user: "Mary Achieng",
+        avatar: "MA",
+        lastMessage: "Mary asked whether August 2026 is still suitable for your transfer plan.",
+        timestamp: "2026-05-04T10:30:00Z",
+        unread: 2,
+        online: true,
+        messages: [
+          {
+            id: "msg1",
+            text: "Hi! I saw your profile and we're both interested in moving to Nairobi. Are you still planning for August 2026?",
+            timestamp: "2026-05-04T09:00:00Z",
+            sender: "them",
+            read: true
+          },
+          {
+            id: "msg2",
+            text: "Yes, August is still my target month. How about you?",
+            timestamp: "2026-05-04T09:15:00Z",
+            sender: "me",
+            read: true
+          },
+          {
+            id: "msg3",
+            text: "Perfect! I'm also targeting August. Have you started the application process yet?",
+            timestamp: "2026-05-04T09:30:00Z",
+            sender: "them",
+            read: true
+          },
+          {
+            id: "msg4",
+            text: "Not yet, but I'm planning to submit next week. The TSC portal should be opening soon.",
+            timestamp: "2026-05-04T10:00:00Z",
+            sender: "me",
+            read: true
+          },
+          {
+            id: "msg5",
+            text: "Great! Let me know if you need any help with the application. I went through the process last year.",
+            timestamp: "2026-05-04T10:15:00Z",
+            sender: "them",
+            read: false
+          },
+          {
+            id: "msg6",
+            text: "That would be really helpful! Thanks for offering.",
+            timestamp: "2026-05-04T10:30:00Z",
+            sender: "me",
+            read: false
+          }
+        ]
+      },
+      {
+        id: "peter-mwangi",
+        user: "Peter Mwangi",
+        avatar: "PM",
+        lastMessage: "Thanks for the connection! Let's discuss the transfer details.",
+        timestamp: "2026-05-03T16:45:00Z",
+        unread: 0,
+        online: false,
+        messages: [
+          {
+            id: "msg1",
+            text: "Hello! I noticed we have similar subject combinations. Are you looking to transfer?",
+            timestamp: "2026-05-03T14:00:00Z",
+            sender: "them",
+            read: true
+          },
+          {
+            id: "msg2",
+            text: "Hi Peter! Yes, I'm interested in moving to Nairobi. What about you?",
+            timestamp: "2026-05-03T14:30:00Z",
+            sender: "me",
+            read: true
+          },
+          {
+            id: "msg3",
+            text: "Same here! I think we could help each other with the transfer process.",
+            timestamp: "2026-05-03T15:00:00Z",
+            sender: "them",
+            read: true
+          },
+          {
+            id: "msg4",
+            text: "Absolutely! Let's discuss the transfer details.",
+            timestamp: "2026-05-03T16:45:00Z",
+            sender: "me",
+            read: true
+          }
+        ]
+      }
+    ],
+    activeConversation: null,
+    typingUsers: new Set()
+  },
+  creatorStudio: {
+    activeTab: "composer",
+    contentType: "blog",
+    drafts: [
+      {
+        id: "draft1",
+        title: "Draft: AI Lesson Planning Guide",
+        type: "blog",
+        topic: "Technology",
+        lastModified: "2026-05-03",
+        content: "This is a draft about using AI for lesson planning..."
+      }
+    ],
+    published: [
+      {
+        id: "pub1",
+        title: "How to prepare a strong transfer request",
+        type: "blog",
+        topic: "TSC",
+        publishedDate: "2026-05-01",
+        views: 1900,
+        likes: 245,
+        comments: 23
+      }
+    ],
+    analytics: {
+      totalViews: 15420,
+      totalLikes: 892,
+      totalComments: 156,
+      totalShares: 67,
+      earnings: 12450
+    }
+  }
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -187,6 +537,7 @@ function boot() {
   bindEvents();
   syncProfileFields();
   renderAll();
+  renderCreatorStudio(); // Initialize creator studio
   setView("profile");
   restoreSession();
 }
@@ -775,29 +1126,233 @@ function renderMatches() {
 
 function renderMessages() {
   setMetricRow("#messages-summary", [
-    ["Unread", "2"],
+    ["Unread", state.chat.conversations.reduce((sum, conv) => sum + conv.unread, 0)],
     ["Archived", "4"],
     ["Moderation", "Reports enabled"]
   ]);
-  $("#messages-list").innerHTML = `
-    <article class="list-item">
-      <div>
-        <h3>Mary Achieng</h3>
-        <p>10 messages folded. Mary asked whether August 2026 is still suitable for your transfer plan.</p>
-        <div class="inline-tags">
-          <span>Matched user</span>
-          <span>Typing indicator ready</span>
-          <span>Read receipts ready</span>
+
+  // Render conversations list
+  $("#conversations-list").innerHTML = state.chat.conversations.map(conv => `
+    <article class="list-item ${state.chat.activeConversation === conv.id ? 'active' : ''}" data-conversation="${conv.id}">
+      <div class="conversation-item">
+        <div class="conversation-avatar">${conv.avatar}</div>
+        <div class="conversation-content">
+          <div class="conversation-header">
+            <h3>${conv.user}</h3>
+            <span class="conversation-time">${formatTime(conv.timestamp)}</span>
+          </div>
+          <p class="conversation-preview">${conv.lastMessage}</p>
+          ${conv.unread > 0 ? `<span class="unread-badge">${conv.unread}</span>` : ''}
+          <div class="conversation-status ${conv.online ? 'online' : 'offline'}"></div>
         </div>
       </div>
-      <div class="list-actions">
-        <button>View More</button>
-        <button class="secondary">Archive</button>
-        <button class="secondary">Report</button>
-        <button class="danger">Block User</button>
-      </div>
     </article>
+  `).join("");
+
+  // Render active chat
+  if (state.chat.activeConversation) {
+    const conversation = state.chat.conversations.find(c => c.id === state.chat.activeConversation);
+    if (conversation) {
+      $("#chat-user-name").textContent = conversation.user;
+      $("#chat-status").textContent = conversation.online ? "Online" : "Offline";
+      $("#chat-status").className = `chat-status ${conversation.online ? 'online' : ''}`;
+
+      $("#chat-messages").innerHTML = conversation.messages.map(msg => `
+        <div class="message ${msg.sender === 'me' ? 'own' : ''}">
+          ${msg.sender !== 'me' ? `<div class="message-avatar">${conversation.avatar}</div>` : ''}
+          <div class="message-content">
+            <p class="message-text">${msg.text}</p>
+            <span class="message-time">${formatMessageTime(msg.timestamp)}</span>
+          </div>
+        </div>
+      `).join("");
+
+      // Scroll to bottom
+      $("#chat-messages").scrollTop = $("#chat-messages").scrollHeight;
+    }
+  } else {
+    $("#chat-user-name").textContent = "Select a conversation";
+    $("#chat-status").textContent = "Offline";
+    $("#chat-status").className = "chat-status";
+    $("#chat-messages").innerHTML = '<div class="no-chat-selected"><p>Select a conversation to start messaging</p></div>';
+  }
+
+  // Update typing indicator
+  updateTypingIndicator();
+
+  // Bind conversation click events
+  $$("#conversations-list .list-item").forEach(item => {
+    item.addEventListener("click", () => {
+      const conversationId = item.dataset.conversation;
+      setActiveConversation(conversationId);
+    });
+  });
+
+  // Bind chat composer events
+  bindChatEvents();
+}
+
+// Chat helper functions
+function setActiveConversation(conversationId) {
+  state.chat.activeConversation = conversationId;
+  const conversation = state.chat.conversations.find(c => c.id === conversationId);
+  if (conversation) {
+    conversation.unread = 0;
+    conversation.messages.forEach(msg => {
+      if (msg.sender === 'them') msg.read = true;
+    });
+  }
+  renderMessages();
+}
+
+function formatTime(timestamp) {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) return 'now';
+  if (minutes < 60) return `${minutes}m`;
+  if (hours < 24) return `${hours}h`;
+  if (days < 7) return `${days}d`;
+  return date.toLocaleDateString();
+}
+
+function formatMessageTime(timestamp) {
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function updateTypingIndicator() {
+  const indicator = $("#typing-indicator");
+  if (state.chat.activeConversation && state.chat.typingUsers.has(state.chat.activeConversation)) {
+    indicator.style.display = 'flex';
+  } else {
+    indicator.style.display = 'none';
+  }
+}
+
+function bindChatEvents() {
+  const messageInput = $("#message-input");
+  const sendBtn = $("#send-btn");
+  const emojiBtn = $("#emoji-picker-btn");
+  const emojiPicker = document.createElement('div');
+  emojiPicker.className = 'emoji-picker';
+  emojiPicker.innerHTML = `
+    😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🤩 🥳 😏 😒 😞 😔 😟 😕 🙁 ☹️ 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 🤥 😶 😐 😑 😬 🙄 😯 😦 😧 😮 😲 🥱 😴 🤤 😪 😵 🤐 🥴 🤢 🤮 🤧 😷 🤒 🤕 🤑 🤠 😈 👿 👹 👺 🤡 💩 👻 💀 ☠️ 👽 👾 🤖 🎃 😺 😸 😹 😻 😼 😽 🙀 😿 😾
   `;
+  emojiPicker.style.display = 'none';
+  $("#emoji-picker-btn").parentNode.appendChild(emojiPicker);
+
+  // Message input handler
+  messageInput?.addEventListener("input", () => {
+    const hasText = messageInput.value.trim().length > 0;
+    sendBtn.disabled = !hasText;
+
+    // Auto-resize textarea
+    messageInput.style.height = 'auto';
+    messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+  });
+
+  // Send message handler
+  sendBtn?.addEventListener("click", () => {
+    sendMessage();
+  });
+
+  // Enter key handler
+  messageInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (!sendBtn.disabled) {
+        sendMessage();
+      }
+    }
+  });
+
+  // Emoji picker toggle
+  emojiBtn?.addEventListener("click", () => {
+    emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'grid' : 'none';
+  });
+
+  // Emoji selection
+  $$('.emoji-btn').forEach(btn => {
+    btn.addEventListener("click", () => {
+      messageInput.value += btn.textContent;
+      messageInput.dispatchEvent(new Event('input'));
+      emojiPicker.style.display = 'none';
+      messageInput.focus();
+    });
+  });
+
+  // Click outside to close emoji picker
+  document.addEventListener("click", (e) => {
+    if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
+      emojiPicker.style.display = 'none';
+    }
+  });
+}
+
+function sendMessage() {
+  const messageInput = $("#message-input");
+  const text = messageInput.value.trim();
+  if (!text || !state.chat.activeConversation) return;
+
+  const conversation = state.chat.conversations.find(c => c.id === state.chat.activeConversation);
+  if (!conversation) return;
+
+  const message = {
+    id: `msg${Date.now()}`,
+    text: text,
+    timestamp: new Date().toISOString(),
+    sender: 'me',
+    read: true
+  };
+
+  conversation.messages.push(message);
+  conversation.lastMessage = text;
+  conversation.timestamp = message.timestamp;
+
+  messageInput.value = '';
+  messageInput.dispatchEvent(new Event('input'));
+
+  renderMessages();
+
+  // Simulate reply after a delay
+  setTimeout(() => {
+    simulateReply(conversation);
+  }, 1000 + Math.random() * 3000);
+}
+
+function simulateReply(conversation) {
+  const replies = [
+    "Thanks for your message! That sounds good.",
+    "I agree with you on that point.",
+    "Let me think about it and get back to you.",
+    "That's interesting! Tell me more.",
+    "I understand. How can we proceed?",
+    "Great idea! Let's discuss the details.",
+    "I appreciate your input on this.",
+    "That makes sense to me.",
+    "I'll look into that for you.",
+    "Thanks for keeping me updated."
+  ];
+
+  const reply = {
+    id: `msg${Date.now()}`,
+    text: replies[Math.floor(Math.random() * replies.length)],
+    timestamp: new Date().toISOString(),
+    sender: 'them',
+    read: false
+  };
+
+  conversation.messages.push(reply);
+  conversation.lastMessage = reply.text;
+  conversation.timestamp = reply.timestamp;
+  conversation.unread += 1;
+
+  renderMessages();
 }
 
 function renderNotifications() {
@@ -855,23 +1410,151 @@ function renderNews() {
 
 function renderBlogs() {
   const filter = $("#blog-filter").value;
-  const filtered = blogs.filter((blog) => filter === "All" || blog.topic === filter);
+  const searchQuery = $("#blog-search")?.value?.toLowerCase() || "";
+  const filtered = blogs.filter((blog) =>
+    (filter === "All" || blog.topic === filter) &&
+    (blog.title.toLowerCase().includes(searchQuery) ||
+     blog.author.toLowerCase().includes(searchQuery) ||
+     blog.topic.toLowerCase().includes(searchQuery))
+  );
+
   setMetricRow("#blogs-summary", [
     ["Filter", filter],
     ["Items", filtered.length],
-    ["Monetization", "Ads + sponsored posts"]
+    ["Total engagement", filtered.reduce((sum, blog) => sum + blog.likes + blog.comments + blog.shares, 0)]
   ]);
-  $("#blogs-list").innerHTML = filtered
-    .map((blog) => `
-      <article class="card">
-        <p class="eyebrow">${blog.format} / ${blog.topic}</p>
-        <h3>${blog.title}</h3>
-        <p>Supports comments, replies, likes, shares, reports, bookmarks, playlists, and creator follow actions.</p>
-        <footer>${blog.stats} ${blog.topic === "Video" ? "<button data-view=\"videos\">Open Videos</button>" : "<span>Ad eligible</span>"}</footer>
-      </article>
-    `).join("");
-  $$("#blogs-list [data-view='videos']").forEach((button) => {
-    button.addEventListener("click", () => setView("videos"));
+
+  // Render blogs list
+  $("#blogs-list").innerHTML = filtered.map((blog) => `
+    <div class="blog-card" data-blog-id="${blog.id}">
+      <h3>${blog.title}</h3>
+      <div class="blog-meta">
+        <span>By ${blog.author}</span>
+        <span>${blog.date}</span>
+        <span>${blog.topic}</span>
+        <span>${blog.format}</span>
+      </div>
+      <div class="blog-stats">
+        <span>👍 ${blog.likes} • 💬 ${blog.comments} • 📤 ${blog.shares}</span>
+        <span>${blog.stats}</span>
+      </div>
+    </div>
+  `).join("");
+
+  // Bind blog click events
+  $$(".blog-card").forEach(card => {
+    card.addEventListener("click", () => {
+      const blogId = card.dataset.blogId;
+      openBlog(blogId);
+    });
+  });
+}
+
+function openBlog(blogId) {
+  const blog = blogs.find(b => b.id === blogId);
+  if (!blog) return;
+
+  // Update UI to show blog reader
+  $("#blogs-list").style.display = "none";
+  $("#blog-reader").style.display = "flex";
+
+  // Populate blog content
+  $("#blog-title").textContent = blog.title;
+  $("#blog-author").textContent = blog.author;
+  $("#blog-date").textContent = blog.date;
+  $("#blog-topic").textContent = blog.topic;
+  $("#blog-content").innerHTML = blog.content;
+
+  // Update engagement counts
+  $("#like-count").textContent = blog.likes;
+  $("#comment-count").textContent = blog.comments;
+
+  // Render comments
+  renderBlogComments(blog);
+
+  // Bind blog interaction events
+  bindBlogEvents(blog);
+}
+
+function renderBlogComments(blog) {
+  $("#comments-list").innerHTML = blog.comments.map(comment => `
+    <div class="comment-item">
+      <strong>${comment.author}</strong>
+      <p>${comment.text}</p>
+      <div class="comment-actions">
+        <button class="like-comment-btn" data-comment-id="${comment.id}">👍 ${comment.likes}</button>
+        <button class="reply-btn" data-comment-id="${comment.id}">💬 Reply (${comment.replies})</button>
+        <button class="report-comment-btn" data-comment-id="${comment.id}">🚨 Report</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function bindBlogEvents(blog) {
+  // Back button
+  $("#back-to-blogs")?.addEventListener("click", () => {
+    $("#blogs-list").style.display = "block";
+    $("#blog-reader").style.display = "none";
+  });
+
+  // Like button
+  $("#like-btn")?.addEventListener("click", () => {
+    const btn = $("#like-btn");
+    const isLiked = btn.classList.contains("liked");
+    if (isLiked) {
+      blog.likes--;
+      btn.classList.remove("liked");
+    } else {
+      blog.likes++;
+      btn.classList.add("liked");
+    }
+    $("#like-count").textContent = blog.likes;
+  });
+
+  // Share button
+  $("#share-btn")?.addEventListener("click", () => {
+    if (navigator.share) {
+      navigator.share({
+        title: blog.title,
+        text: `Check out this ${blog.format.toLowerCase()}: ${blog.title}`,
+        url: window.location.href
+      });
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(`${blog.title} - ${window.location.href}`);
+      alert("Link copied to clipboard!");
+    }
+  });
+
+  // Comment form
+  const commentInput = $("#comment-input");
+  const submitBtn = $("#submit-comment");
+
+  commentInput?.addEventListener("input", () => {
+    submitBtn.disabled = !commentInput.value.trim();
+  });
+
+  submitBtn?.addEventListener("click", () => {
+    const text = commentInput.value.trim();
+    if (!text) return;
+
+    const comment = {
+      id: `comment${Date.now()}`,
+      author: state.currentUser?.name || "Anonymous User",
+      text: text,
+      likes: 0,
+      replies: 0,
+      timestamp: new Date().toISOString()
+    };
+
+    blog.comments.push(comment);
+    blog.comments++;
+    $("#comment-count").textContent = blog.comments;
+
+    commentInput.value = "";
+    submitBtn.disabled = true;
+
+    renderBlogComments(blog);
   });
 }
 
@@ -925,23 +1608,41 @@ function renderVideos() {
 
 function renderWatchPage() {
   const video = getActiveVideo();
+
+  // Set up video element
+  const videoElement = $("#video-element");
+  const videoSource = $("#video-source");
+  const playOverlay = $("#play-overlay");
+
+  // For demo purposes, we'll use a placeholder video URL
+  // In a real implementation, this would be the actual video file URL
+  videoSource.src = `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4`; // Placeholder
+  videoElement.load(); // Reload the video element
+
   $("#watch-player").style.background = video.color;
   $("#watch-title").textContent = video.title;
   $("#watch-creator").textContent = video.creator;
   $("#watch-stats").textContent = `${video.views} • ${video.posted} • ${video.topic}`;
   $("#watch-likes").textContent = video.likes.toLocaleString();
   $("#watch-description").textContent = video.description;
+
+  // Update engagement buttons
+  $("#like-btn").textContent = `👍 ${video.likes}`;
+  $("#comment-count").textContent = video.comments.length;
+
+  // Render comments
   $("#comments-list").innerHTML = video.comments.map((comment) => `
     <article class="comment-item">
       <strong>Teacher User</strong>
       <p>${comment}</p>
       <div>
-        <button class="secondary">Reply</button>
-        <button class="secondary">Like</button>
-        <button class="secondary">Report</button>
+        <button class="secondary like-comment-btn">👍 Like</button>
+        <button class="secondary reply-btn">💬 Reply</button>
+        <button class="secondary report-comment-btn">🚨 Report</button>
       </div>
     </article>
   `).join("");
+
   $("#related-videos").innerHTML = videos
     .filter((item) => item.id !== video.id)
     .map((item) => `
@@ -954,8 +1655,124 @@ function renderWatchPage() {
         </div>
       </article>
     `).join("");
+
   $$("#related-videos .related-video").forEach((card) => {
     card.addEventListener("click", () => openWatch(card.dataset.videoId));
+  });
+
+  // Set up video controls
+  setupVideoPlayer(video);
+
+  // Bind engagement events
+  bindVideoEngagement(video);
+}
+
+function setupVideoPlayer(video) {
+  const videoElement = $("#video-element");
+  const playOverlay = $("#play-overlay");
+
+  // Play/pause functionality
+  const togglePlay = () => {
+    if (videoElement.paused) {
+      videoElement.play();
+      playOverlay.classList.add("hidden");
+    } else {
+      videoElement.pause();
+      playOverlay.classList.remove("hidden");
+    }
+  };
+
+  playOverlay.addEventListener("click", togglePlay);
+  videoElement.addEventListener("click", togglePlay);
+
+  // Update play button visibility
+  videoElement.addEventListener("play", () => {
+    playOverlay.classList.add("hidden");
+  });
+
+  videoElement.addEventListener("pause", () => {
+    playOverlay.classList.remove("hidden");
+  });
+
+  // Handle video end
+  videoElement.addEventListener("ended", () => {
+    playOverlay.classList.remove("hidden");
+  });
+}
+
+function bindVideoEngagement(video) {
+  // Like button
+  $("#like-btn")?.addEventListener("click", () => {
+    const btn = $("#like-btn");
+    const isLiked = btn.classList.contains("liked");
+    if (isLiked) {
+      video.likes--;
+      btn.classList.remove("liked");
+    } else {
+      video.likes++;
+      btn.classList.add("liked");
+    }
+    btn.textContent = `👍 ${video.likes}`;
+    $("#watch-likes").textContent = video.likes.toLocaleString();
+  });
+
+  // Comment form
+  const commentInput = $("#video-comment-input");
+  const submitBtn = $("#submit-video-comment");
+
+  commentInput?.addEventListener("input", () => {
+    submitBtn.disabled = !commentInput.value.trim();
+  });
+
+  submitBtn?.addEventListener("click", () => {
+    const text = commentInput.value.trim();
+    if (!text) return;
+
+    video.comments.push(text);
+    $("#comment-count").textContent = video.comments.length;
+
+    commentInput.value = "";
+    submitBtn.disabled = true;
+
+    // Re-render comments
+    $("#comments-list").innerHTML = video.comments.map((comment) => `
+      <article class="comment-item">
+        <strong>Teacher User</strong>
+        <p>${comment}</p>
+        <div>
+          <button class="secondary like-comment-btn">👍 Like</button>
+          <button class="secondary reply-btn">💬 Reply</button>
+          <button class="secondary report-comment-btn">🚨 Report</button>
+        </div>
+      </article>
+    `).join("");
+  });
+
+  // Share button
+  $("#share-btn")?.addEventListener("click", () => {
+    if (navigator.share) {
+      navigator.share({
+        title: video.title,
+        text: `Check out this video: ${video.title}`,
+        url: window.location.href
+      });
+    } else {
+      navigator.clipboard.writeText(`${video.title} - ${window.location.href}`);
+      alert("Link copied to clipboard!");
+    }
+  });
+
+  // Other engagement buttons
+  $("#save-btn")?.addEventListener("click", () => {
+    alert("Video saved to your library!");
+  });
+
+  $("#playlist-btn")?.addEventListener("click", () => {
+    alert("Added to playlist!");
+  });
+
+  $("#report-video-btn")?.addEventListener("click", () => {
+    alert("Report submitted. Thank you for helping keep our community safe.");
   });
 }
 
@@ -1028,6 +1845,422 @@ function renderSuggestions() {
       box.hidden = true;
     });
   });
+}
+
+// Creator Studio Functions
+function renderCreatorStudio() {
+  // Set active tab
+  $$(".tab-btn").forEach(btn => btn.classList.remove("active"));
+  $(`.tab-btn[data-tab="${state.creatorStudio.activeTab}"]`)?.classList.add("active");
+
+  // Hide all panels
+  $$(".studio-content > div").forEach(panel => panel.style.display = "none");
+
+  // Show active panel
+  const activePanel = $(`#${state.creatorStudio.activeTab}-panel`);
+  if (activePanel) {
+    activePanel.style.display = "block";
+  }
+
+  // Render based on active tab
+  switch (state.creatorStudio.activeTab) {
+    case "composer":
+      renderComposer();
+      break;
+    case "drafts":
+      renderDrafts();
+      break;
+    case "published":
+      renderPublished();
+      break;
+    case "analytics":
+      renderAnalytics();
+      break;
+  }
+
+  // Update wallet balance
+  $("#wallet-balance").textContent = `KES ${state.creatorStudio.analytics.earnings.toLocaleString()}`;
+}
+
+function renderComposer() {
+  // Set active content type
+  $$(".content-type-btn").forEach(btn => btn.classList.remove("active"));
+  $(`.content-type-btn[data-type="${state.creatorStudio.contentType}"]`)?.classList.add("active");
+
+  // Show/hide content type specific controls
+  $("#podcast-controls").style.display = state.creatorStudio.contentType === "podcast" ? "block" : "none";
+  $("#vlog-controls").style.display = state.creatorStudio.contentType === "vlog" ? "block" : "none";
+
+  // Bind composer events
+  bindComposerEvents();
+}
+
+function bindComposerEvents() {
+  // Tab switching
+  $$(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.creatorStudio.activeTab = btn.dataset.tab;
+      renderCreatorStudio();
+    });
+  });
+
+  // Content type switching
+  $$(".content-type-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.creatorStudio.contentType = btn.dataset.type;
+      renderComposer();
+    });
+  });
+
+  // Editor toolbar
+  $$(".editor-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const command = btn.dataset.command;
+      if (command) {
+        document.execCommand(command, false, null);
+      }
+    });
+  });
+
+  // Form validation
+  const titleInput = $("#content-title");
+  const publishBtn = $("#publish-btn");
+
+  const validateForm = () => {
+    const hasTitle = titleInput?.value.trim();
+    const hasContent = $("#editor-content")?.textContent.trim();
+    publishBtn.disabled = !(hasTitle && hasContent);
+  };
+
+  titleInput?.addEventListener("input", validateForm);
+  $("#editor-content")?.addEventListener("input", validateForm);
+
+  // Save draft
+  $("#save-draft-btn")?.addEventListener("click", () => {
+    saveDraft();
+  });
+
+  // Publish
+  $("#publish-btn")?.addEventListener("click", () => {
+    publishContent();
+  });
+
+  // Preview
+  $("#preview-btn")?.addEventListener("click", () => {
+    previewContent();
+  });
+
+  // Media upload
+  $("#add-media-btn")?.addEventListener("click", () => {
+    // Simulate file picker
+    const input = document.createElement("input");
+    input.type = "file";
+    input.multiple = true;
+    input.accept = "image/*,video/*,audio/*";
+    input.addEventListener("change", handleMediaUpload);
+    input.click();
+  });
+
+  // Recording buttons
+  $("#record-btn")?.addEventListener("click", () => {
+    toggleRecording("audio");
+  });
+
+  $("#record-video-btn")?.addEventListener("click", () => {
+    toggleRecording("video");
+  });
+
+  $("#upload-audio-btn")?.addEventListener("click", () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "audio/*";
+    input.addEventListener("change", (e) => handleAudioUpload(e.target.files[0]));
+    input.click();
+  });
+
+  $("#upload-video-btn")?.addEventListener("click", () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "video/*";
+    input.addEventListener("change", (e) => handleVideoUpload(e.target.files[0]));
+    input.click();
+  });
+}
+
+function saveDraft() {
+  const draft = {
+    id: `draft${Date.now()}`,
+    title: $("#content-title").value.trim(),
+    type: state.creatorStudio.contentType,
+    topic: $("#content-topic").value,
+    description: $("#content-description").value.trim(),
+    tags: $("#content-tags").value.split(",").map(tag => tag.trim()).filter(tag => tag),
+    content: $("#editor-content").innerHTML,
+    lastModified: new Date().toISOString().split("T")[0]
+  };
+
+  state.creatorStudio.drafts.push(draft);
+  alert("Draft saved successfully!");
+}
+
+function publishContent() {
+  const content = {
+    id: `pub${Date.now()}`,
+    title: $("#content-title").value.trim(),
+    type: state.creatorStudio.contentType,
+    topic: $("#content-topic").value,
+    author: state.currentUser?.name || "Anonymous Creator",
+    date: new Date().toISOString().split("T")[0],
+    content: $("#editor-content").innerHTML,
+    likes: 0,
+    comments: 0,
+    shares: 0,
+    views: 0
+  };
+
+  state.creatorStudio.published.push(content);
+
+  // Add to blogs array if it's a blog
+  if (content.type === "blog") {
+    blogs.push({
+      id: content.id,
+      title: content.title,
+      topic: content.topic,
+      format: "Blog",
+      author: content.author,
+      date: content.date,
+      stats: "0 reads",
+      likes: content.likes,
+      comments: content.comments,
+      shares: content.shares,
+      content: content.content,
+      comments: []
+    });
+  }
+
+  // Reset form
+  $("#content-form").reset();
+  $("#editor-content").innerHTML = "";
+
+  alert("Content published successfully!");
+  renderCreatorStudio();
+}
+
+function previewContent() {
+  const title = $("#content-title").value.trim();
+  const content = $("#editor-content").innerHTML;
+
+  const previewWindow = window.open("", "_blank");
+  previewWindow.document.write(`
+    <html>
+    <head>
+      <title>Preview: ${title}</title>
+      <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #196f4d; }
+        img { max-width: 100%; height: auto; }
+      </style>
+    </head>
+    <body>
+      <h1>${title}</h1>
+      <div>${content}</div>
+    </body>
+    </html>
+  `);
+}
+
+function handleMediaUpload(event) {
+  const files = Array.from(event.target.files);
+  const mediaUploads = $("#media-uploads");
+
+  files.forEach(file => {
+    const mediaItem = document.createElement("div");
+    mediaItem.className = "media-item";
+
+    if (file.type.startsWith("image/")) {
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
+      mediaItem.appendChild(img);
+    } else if (file.type.startsWith("video/")) {
+      const video = document.createElement("video");
+      video.src = URL.createObjectURL(file);
+      video.controls = true;
+      mediaItem.appendChild(video);
+    }
+
+    const info = document.createElement("div");
+    info.className = "media-info";
+    info.innerHTML = `
+      <div><strong>${file.name}</strong></div>
+      <div>${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+    `;
+
+    const actions = document.createElement("div");
+    actions.className = "media-actions";
+    actions.innerHTML = `
+      <button class="insert-btn">Insert</button>
+      <button class="remove-btn">Remove</button>
+    `;
+
+    actions.querySelector(".insert-btn").addEventListener("click", () => {
+      insertMedia(file);
+      mediaItem.remove();
+    });
+
+    actions.querySelector(".remove-btn").addEventListener("click", () => {
+      mediaItem.remove();
+    });
+
+    mediaItem.appendChild(info);
+    mediaItem.appendChild(actions);
+    mediaUploads.appendChild(mediaItem);
+  });
+}
+
+function insertMedia(file) {
+  const editor = $("#editor-content");
+
+  if (file.type.startsWith("image/")) {
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    img.style.maxWidth = "100%";
+    editor.appendChild(img);
+  } else if (file.type.startsWith("video/")) {
+    const video = document.createElement("video");
+    video.src = URL.createObjectURL(file);
+    video.controls = true;
+    video.style.maxWidth = "100%";
+    editor.appendChild(video);
+  }
+}
+
+function toggleRecording(type) {
+  const status = $(`#${type}-recording-status`);
+  const isRecording = status.classList.contains("recording");
+
+  if (isRecording) {
+    status.textContent = "Recording stopped";
+    status.classList.remove("recording");
+    status.classList.add("stopped");
+  } else {
+    status.textContent = "Recording...";
+    status.classList.add("recording");
+    status.classList.remove("stopped");
+  }
+}
+
+function handleAudioUpload(file) {
+  // Simulate upload
+  setTimeout(() => {
+    alert(`Audio file "${file.name}" uploaded successfully!`);
+  }, 1000);
+}
+
+function handleVideoUpload(file) {
+  // Simulate upload
+  setTimeout(() => {
+    alert(`Video file "${file.name}" uploaded successfully!`);
+  }, 1000);
+}
+
+function renderDrafts() {
+  $("#drafts-list").innerHTML = state.creatorStudio.drafts.map(draft => `
+    <div class="draft-item">
+      <h4>${draft.title}</h4>
+      <div class="draft-meta">
+        <span>${draft.type}</span>
+        <span>${draft.topic}</span>
+        <span>Last modified: ${draft.lastModified}</span>
+      </div>
+      <div class="draft-actions">
+        <button class="edit-draft-btn" data-draft-id="${draft.id}">Edit</button>
+        <button class="delete-draft-btn" data-draft-id="${draft.id}">Delete</button>
+      </div>
+    </div>
+  `).join("");
+
+  // Bind draft actions
+  $$(".edit-draft-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const draftId = btn.dataset.draftId;
+      editDraft(draftId);
+    });
+  });
+
+  $$(".delete-draft-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const draftId = btn.dataset.draftId;
+      deleteDraft(draftId);
+    });
+  });
+}
+
+function renderPublished() {
+  $("#published-list").innerHTML = state.creatorStudio.published.map(item => `
+    <div class="published-item">
+      <h4>${item.title}</h4>
+      <div class="published-meta">
+        <span>${item.type}</span>
+        <span>${item.topic}</span>
+        <span>Published: ${item.publishedDate}</span>
+        <span>${item.views} views • ${item.likes} likes • ${item.comments} comments</span>
+      </div>
+      <div class="published-actions">
+        <button class="view-published-btn" data-item-id="${item.id}">View</button>
+        <button class="edit-published-btn" data-item-id="${item.id}">Edit</button>
+        <button class="analytics-btn" data-item-id="${item.id}">Analytics</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderAnalytics() {
+  const analytics = state.creatorStudio.analytics;
+  $("#analytics-grid").innerHTML = `
+    <div class="analytics-card">
+      <h4>Total Views</h4>
+      <strong>${analytics.totalViews.toLocaleString()}</strong>
+    </div>
+    <div class="analytics-card">
+      <h4>Total Likes</h4>
+      <strong>${analytics.totalLikes.toLocaleString()}</strong>
+    </div>
+    <div class="analytics-card">
+      <h4>Total Comments</h4>
+      <strong>${analytics.totalComments.toLocaleString()}</strong>
+    </div>
+    <div class="analytics-card">
+      <h4>Total Shares</h4>
+      <strong>${analytics.totalShares.toLocaleString()}</strong>
+    </div>
+    <div class="analytics-card">
+      <h4>Total Earnings</h4>
+      <strong>KES ${analytics.earnings.toLocaleString()}</strong>
+    </div>
+  `;
+}
+
+function editDraft(draftId) {
+  const draft = state.creatorStudio.drafts.find(d => d.id === draftId);
+  if (!draft) return;
+
+  // Load draft into composer
+  $("#content-title").value = draft.title;
+  $("#content-topic").value = draft.topic;
+  $("#content-description").value = draft.description;
+  $("#content-tags").value = draft.tags.join(", ");
+  $("#editor-content").innerHTML = draft.content;
+
+  state.creatorStudio.contentType = draft.type;
+  state.creatorStudio.activeTab = "composer";
+  renderCreatorStudio();
+}
+
+function deleteDraft(draftId) {
+  if (confirm("Are you sure you want to delete this draft?")) {
+    state.creatorStudio.drafts = state.creatorStudio.drafts.filter(d => d.id !== draftId);
+    renderDrafts();
+  }
 }
 
 boot();

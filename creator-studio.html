@@ -1,8 +1,169 @@
 <!doctype html>
 <html lang="en">
   <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Creator Studio - TON</title><link rel="stylesheet" href="styles.css" /><link rel="stylesheet" href="shell.css" /></head>
-  <body data-page="my-blog">
-    <div class="app-shell"><header class="topbar"><div class="brand"><img class="brand-mark" id="brand-logo" src="logo/ton.png" alt="TON logo" /><div><strong id="brand-name">Teachers Online Network</strong><span id="brand-subtitle"></span></div></div><nav class="top-links"><button data-nav="news">News</button><button data-nav="blogs">Blogs</button><button data-nav="videos">Videos</button><button data-nav="shop">Shop</button><button data-nav="partner">Partner Ads</button><button data-nav="profile">Profile</button></nav></header><aside class="sidenav"><button data-nav="swap">SwapTool</button><button data-nav="matches">Matches</button><button data-nav="messages">Messages</button><button data-nav="notifications">Notifications</button><button data-nav="videos">Videos</button><button data-nav="partner">Partner Ads</button><button data-nav="my-shop">My Shop</button><button data-nav="my-blog">My Blog/Vlog</button></aside><main class="content"><section class="route-card"><div class="page-header"><div><p class="eyebrow">Creator Studio</p><h2>My Blog/Vlog</h2></div></div><div class="auth-message" id="page-message"></div><div class="layout-two"><form class="panel form-grid"><label>Title <input value="Using AI to plan CBC lessons" /></label><label>Format <select><option>Blog</option><option>Podcast</option><option>Vlog</option></select></label><label>Topic <select><option>STEM</option><option>TSC</option><option>CBC</option></select></label><button type="button" data-action="publish-draft">Publish Draft</button></form><div class="panel wallet"><h3>Creator Monetization</h3><strong>KES 12,450</strong><p>Wallet balance from sales, ads, webinars, and digital downloads.</p><button data-action="withdraw">Withdraw via M-Pesa</button></div></div></section></main></div>
-    <script src="multipage.js"></script>
+  <body data-page="creator-studio">
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <img class="brand-mark" id="brand-logo" src="logo/creators.png" alt="Creator Studio logo" />
+          <div>
+            <strong id="brand-name">Creator Studio</strong>
+            <span id="brand-subtitle">Content creation and management</span>
+          </div>
+        </div>
+        <nav class="top-links">
+          <button data-nav="news">News</button>
+          <button data-nav="blogs">Blogs</button>
+          <button data-nav="videos">Videos</button>
+          <button data-nav="shop">Shop</button>
+          <button data-nav="partner">Partner Ads</button>
+          <button data-nav="profile">Profile</button>
+        </nav>
+      </header>
+      <aside class="sidenav">
+        <button data-nav="swap">SwapTool</button>
+        <button data-nav="matches">Matches</button>
+        <button data-nav="messages">Messages</button>
+        <button data-nav="notifications">Notifications</button>
+        <button data-nav="videos">Videos</button>
+        <button data-nav="partner">Partner Ads</button>
+        <button data-nav="my-shop">My Shop</button>
+        <button data-nav="creator-studio" class="active">Creator Studio</button>
+      </aside>
+      <main class="content">
+        <section class="creator-studio">
+          <div class="studio-header">
+            <div>
+              <h2>Creator Studio</h2>
+              <p>Create, manage, and monetize your content</p>
+            </div>
+            <div class="wallet-card">
+              <div class="wallet-header">
+                <span>Wallet Balance</span>
+                <strong id="wallet-balance">KES 12,450</strong>
+              </div>
+              <div class="wallet-actions">
+                <button class="btn-secondary">Withdraw</button>
+                <button class="btn-secondary">View Earnings</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="studio-tabs">
+            <button class="tab-btn active" data-tab="composer">Composer</button>
+            <button class="tab-btn" data-tab="drafts">Drafts</button>
+            <button class="tab-btn" data-tab="published">Published</button>
+            <button class="tab-btn" data-tab="analytics">Analytics</button>
+          </div>
+
+          <div class="studio-content">
+            <!-- Composer Panel -->
+            <div class="studio-panel active" id="composer-panel">
+              <div class="content-type-tabs">
+                <button class="content-type-btn active" data-type="blog">📝 Blog</button>
+                <button class="content-type-btn" data-type="podcast">🎙️ Podcast</button>
+                <button class="content-type-btn" data-type="vlog">📹 Vlog</button>
+              </div>
+
+              <div class="composer-panel">
+                <div class="composer-main">
+                  <form class="content-form" id="content-form">
+                    <div class="form-group">
+                      <label for="content-title">Title</label>
+                      <input type="text" id="content-title" placeholder="Enter your content title..." required />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="content-topic">Topic</label>
+                      <select id="content-topic">
+                        <option value="STEM">STEM</option>
+                        <option value="TSC">TSC</option>
+                        <option value="CBC">CBC</option>
+                        <option value="Literature">Literature</option>
+                        <option value="Technology">Technology</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="content-description">Description</label>
+                      <textarea id="content-description" placeholder="Brief description of your content..." rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="content-tags">Tags</label>
+                      <input type="text" id="content-tags" placeholder="Add tags separated by commas..." />
+                    </div>
+
+                    <div class="form-group">
+                      <label>Content</label>
+                      <div class="editor-toolbar">
+                        <button class="editor-btn" data-command="bold" title="Bold">B</button>
+                        <button class="editor-btn" data-command="italic" title="Italic">I</button>
+                        <button class="editor-btn" data-command="underline" title="Underline">U</button>
+                        <button class="editor-btn" data-command="insertUnorderedList" title="Bullet List">•</button>
+                        <button class="editor-btn" data-command="insertOrderedList" title="Numbered List">1.</button>
+                        <button class="editor-btn" data-command="createLink" title="Insert Link">🔗</button>
+                        <button class="editor-btn" data-command="insertImage" title="Insert Image">🖼️</button>
+                        <button class="editor-btn" id="add-media-btn" title="Add Media">📎</button>
+                      </div>
+                      <div class="editor-content" id="editor-content" contenteditable="true" placeholder="Start writing your content here..."></div>
+                    </div>
+
+                    <div class="media-uploads" id="media-uploads"></div>
+
+                    <!-- Podcast Controls -->
+                    <div class="recording-controls" id="podcast-controls" style="display: none;">
+                      <h4>Audio Recording</h4>
+                      <div class="recording-status" id="recording-status">Ready to record</div>
+                      <div class="recording-actions">
+                        <button class="btn-secondary" id="record-btn">🎤 Record Audio</button>
+                        <button class="btn-secondary" id="upload-audio-btn">📁 Upload Audio</button>
+                      </div>
+                    </div>
+
+                    <!-- Vlog Controls -->
+                    <div class="recording-controls" id="vlog-controls" style="display: none;">
+                      <h4>Video Recording</h4>
+                      <div class="recording-status" id="video-recording-status">Ready to record</div>
+                      <div class="recording-actions">
+                        <button class="btn-secondary" id="record-video-btn">📹 Record Video</button>
+                        <button class="btn-secondary" id="upload-video-btn">📁 Upload Video</button>
+                      </div>
+                    </div>
+
+                    <div class="composer-actions">
+                      <div class="action-buttons">
+                        <button type="button" class="btn-secondary" id="save-draft-btn">💾 Save Draft</button>
+                        <button type="button" class="btn-secondary" id="preview-btn">👁️ Preview</button>
+                      </div>
+                      <button type="button" class="btn-primary" id="publish-btn" disabled>🚀 Publish</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Drafts Panel -->
+            <div class="studio-panel" id="drafts-panel">
+              <h3>Your Drafts</h3>
+              <div class="drafts-list" id="drafts-list"></div>
+            </div>
+
+            <!-- Published Panel -->
+            <div class="studio-panel" id="published-panel">
+              <h3>Published Content</h3>
+              <div class="published-list" id="published-list"></div>
+            </div>
+
+            <!-- Analytics Panel -->
+            <div class="studio-panel" id="analytics-panel">
+              <h3>Content Analytics</h3>
+              <div class="analytics-grid" id="analytics-grid"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="app.js"></script>
   </body>
 </html>

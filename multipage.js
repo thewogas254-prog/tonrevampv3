@@ -18,7 +18,7 @@ const pageMeta = {
   "/shop": { brand: "ton", nav: "shop" },
   "/partner": { brand: "partnerAds", nav: "partner" },
   "/my-shop": { brand: "ton", nav: "my-shop" },
-  "/creator-studio": { brand: "ton", nav: "my-blog" }
+  "/creator-studio": { brand: "creators", nav: "creator-studio" }
 };
 
 const brandMeta = {
@@ -56,7 +56,7 @@ const navTargets = {
   shop: "/shop",
   partner: "/partner",
   "my-shop": "/my-shop",
-  "my-blog": "/creator-studio"
+  "creator-studio": "/creator-studio"
 };
 
 const counties = [
