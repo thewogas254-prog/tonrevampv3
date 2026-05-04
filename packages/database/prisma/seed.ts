@@ -329,14 +329,14 @@ async function main() {
   const klickviews = await prisma.user.upsert({
     where: { email: "klickviews2026@ton.co.ke" },
     update: {
-      phoneNumber: "+254716226416",
+      phoneNumber: "+254700000001",
       passwordHash: localPasswordHash("Klickviews2026!"),
       emailVerified: true,
       phoneVerified: true
     },
     create: {
       email: "klickviews2026@ton.co.ke",
-      phoneNumber: "+254716226416",
+      phoneNumber: "+254700000001",
       passwordHash: localPasswordHash("Klickviews2026!"),
       emailVerified: true,
       phoneVerified: true
