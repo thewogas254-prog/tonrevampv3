@@ -3,7 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const { PrismaClient, TeachingLevel, UrgencyStatus, UserRole, PartnerAccountType } = require("../../database/node_modules/@prisma/client");
+const { PrismaClient, TeachingLevel, UrgencyStatus, UserRole, PartnerAccountType, AccountStatus } = require("../../database/node_modules/@prisma/client");
 
 dotenv.config();
 
@@ -84,6 +84,17 @@ function authRequired(req, res, next) {
   } catch {
     return res.status(401).json({ error: "Invalid or expired session." });
   }
+}
+
+function adminRequired(req, res, next) {
+  if (![UserRole.ADMIN, UserRole.MODERATOR].includes(req.auth?.role)) {
+    return res.status(403).json({ error: "Admin access required." });
+  }
+  next();
+}
+
+function randomResetCode() {
+  return String(Math.floor(100000 + Math.random() * 900000));
 }
 
 async function getCurrentUser(userId) {
@@ -592,6 +603,201 @@ app.post("/api/swap-requests", authRequired, async (req, res, next) => {
     });
     await generateMatchesForRequest(request);
     res.status(201).json({ swapRequest: request });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/swap-requests", authRequired, async (req, res, next) => {
+  try {
+    const requests = await prisma.swapRequest.findMany({
+      where: { isActive: true },
+      include: {
+        user: {
+          include: {
+            teacherProfile: { include: { currentCounty: true, subjectCombination: true } }
+          }
+        },
+        currentCounty: true,
+        desiredCounty: true
+      },
+      orderBy: { createdAt: "desc" }
+    });
+
+    res.json({ requests: requests.map((request) => ({
+      id: request.id,
+      name: `${request.user.teacherProfile?.firstName || "Teacher"} ${request.user.teacherProfile?.lastName || ""}`.trim(),
+      level: request.user.teacherProfile?.teachingLevel || "UNKNOWN",
+      currentCounty: request.currentCounty?.name || "Unknown",
+      desiredCounty: request.desiredCounty?.name || "Unknown",
+      subject: request.user.teacherProfile?.subjectCombination?.normalizedName || "Unknown",
+      urgency: request.urgencyStatus === "NOT_URGENT" ? "Not urgent" : "Urgent",
+      messages: request.user.teacherProfile?.allowMessages,
+      createdAt: request.createdAt.toISOString()
+    })) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/swap-requests/:requestId/dm", authRequired, async (req, res, next) => {
+  try {
+    const request = await prisma.swapRequest.findUnique({
+      where: { id: req.params.requestId },
+      include: {
+        user: {
+          include: { teacherProfile: true }
+        }
+      }
+    });
+    if (!request) return res.status(404).json({ error: "Swap request not found." });
+    if (request.userId === req.auth.sub) return res.status(400).json({ error: "Cannot open a conversation with your own request." });
+    if (!request.user.teacherProfile?.allowMessages) return res.status(403).json({ error: "This user has disabled direct messages." });
+
+    const existingParticipants = await prisma.conversationParticipant.findMany({
+      where: { userId: req.auth.sub },
+      include: { conversation: { include: { participants: true } } }
+    });
+    const existing = existingParticipants.find((participant) =>
+      participant.conversation.participants.some((item) => item.userId === request.userId)
+    );
+    const conversation = existing?.conversation || await prisma.conversation.create({
+      data: {
+        participants: {
+          create: [
+            { userId: req.auth.sub },
+            { userId: request.userId }
+          ]
+        }
+      },
+      include: { participants: true }
+    });
+
+    res.json({ conversationId: conversation.id, message: "Conversation opened with the selected teacher." });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/auth/forgot-password", async (req, res, next) => {
+  try {
+    const identifier = String(req.body.identifier || "").trim();
+    const sendMethod = String(req.body.sendMethod || "EMAIL").toUpperCase();
+    if (!identifier) return res.status(400).json({ error: "A valid identifier is required." });
+    const normalizedPhone = normalizeKenyanPhone(identifier);
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ email: identifier.toLowerCase() }, { phoneNumber: normalizedPhone }]
+      }
+    });
+    const code = randomResetCode();
+    await prisma.passwordResetRequest.create({
+      data: {
+        userId: user?.id || null,
+        identifier,
+        sendMethod,
+        resetCode: code,
+        status: "PENDING"
+      }
+    });
+    res.json({ message: "Password reset request submitted. An admin will review the request.", resetCode: code });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/users", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const users = await prisma.user.findMany({
+      where: { isDeleted: false },
+      orderBy: { createdAt: "desc" }
+    });
+    res.json({ users: users.map((user) => ({
+      id: user.id,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
+      accountStatus: user.accountStatus,
+      createdAt: user.createdAt.toISOString()
+    })) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/admin/users/:userId/status", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const accountStatus = String(req.body.accountStatus || "ACTIVE").toUpperCase();
+    if (!Object.values(AccountStatus).includes(accountStatus)) {
+      return res.status(400).json({ error: "Invalid account status." });
+    }
+    const user = await prisma.user.update({
+      where: { id: req.params.userId },
+      data: { accountStatus }
+    });
+    res.json({ id: user.id, accountStatus: user.accountStatus });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/admin/users/:userId/reset-password", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.params.userId } });
+    if (!user) return res.status(404).json({ error: "User not found." });
+    const code = randomResetCode();
+    const request = await prisma.passwordResetRequest.create({
+      data: {
+        userId: user.id,
+        identifier: user.email,
+        sendMethod: "EMAIL",
+        resetCode: code,
+        status: "APPROVED",
+        processedAt: new Date()
+      }
+    });
+    res.json({ resetCode: request.resetCode, requestId: request.id });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/admin/reports", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const reports = await prisma.report.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { reporter: true, reportedUser: true }
+    });
+    res.json({ reports: reports.map((report) => ({
+      id: report.id,
+      reason: report.reason,
+      contentType: report.contentType,
+      status: report.status,
+      reporterEmail: report.reporter?.email,
+      reportedEmail: report.reportedUser?.email,
+      createdAt: report.createdAt.toISOString()
+    })) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/admin/password-reset-requests", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const requests = await prisma.passwordResetRequest.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { user: true }
+    });
+    res.json({ requests: requests.map((entry) => ({
+      id: entry.id,
+      userEmail: entry.user?.email || null,
+      identifier: entry.identifier,
+      sendMethod: entry.sendMethod,
+      status: entry.status,
+      resetCode: entry.resetCode,
+      createdAt: entry.createdAt.toISOString(),
+      processedAt: entry.processedAt?.toISOString() || null
+    })) });
   } catch (error) {
     next(error);
   }

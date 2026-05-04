@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - TON</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="shell.css" />
+  </head>
+  <body data-page="admin">
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand"><img class="brand-mark" id="brand-logo" src="logo/ton.png" alt="TON logo" /><div><strong id="brand-name">Teachers Online Network</strong><span id="brand-subtitle"></span></div></div>
+        <nav class="top-links"><button data-nav="news">News</button><button data-nav="blogs">Blogs</button><button data-nav="videos">Videos</button><button data-nav="shop">Shop</button><button data-nav="partner">Partner Ads</button><button data-nav="profile">Profile</button></nav>
+      </header>
+      <aside class="sidenav"><button data-nav="swap">SwapTool</button><button data-nav="matches">Matches</button><button data-nav="messages">Messages</button><button data-nav="notifications">Notifications</button><button data-nav="videos">Videos</button><button data-nav="partner">Partner Ads</button><button data-nav="my-shop">My Shop</button><button data-nav="admin">Admin</button></aside>
+      <main class="content">
+        <section class="route-card">
+          <div class="page-header"><div><p class="eyebrow">Administration</p><h2>Admin Dashboard</h2></div></div>
+          <div class="auth-message" id="page-message"></div>
+          <div class="panel admin-tabs">
+            <button type="button" class="active" data-admin-tab-button="users">Users</button>
+            <button type="button" data-admin-tab-button="reports">Reports</button>
+            <button type="button" data-admin-tab-button="reset-requests">Password Requests</button>
+            <button type="button" data-admin-tab-button="news">News</button>
+          </div>
+          <div class="panel admin-content active" data-admin-tab="users">
+            <h3>User management</h3>
+            <div id="admin-users-list"></div>
+          </div>
+          <div class="panel admin-content" data-admin-tab="reports">
+            <h3>Reports</h3>
+            <div id="admin-reports-list"></div>
+          </div>
+          <div class="panel admin-content" data-admin-tab="reset-requests">
+            <h3>Password reset requests</h3>
+            <div id="admin-password-requests-list"></div>
+          </div>
+          <div class="panel admin-content" data-admin-tab="news">
+            <h3>Create news item</h3>
+            <form id="admin-news-form" class="form-grid">
+              <label>Title <input id="admin-news-title" type="text" placeholder="News headline" /></label>
+              <label>Body <textarea id="admin-news-body" rows="4" placeholder="News details"></textarea></label>
+              <button type="submit">Submit News</button>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="multipage.js"></script>
+  </body>
+</html>

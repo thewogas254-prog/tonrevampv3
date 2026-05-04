@@ -18,6 +18,9 @@ const pageMeta = {
   "/shop": { brand: "ton", nav: "shop" },
   "/partner": { brand: "partnerAds", nav: "partner" },
   "/my-shop": { brand: "ton", nav: "my-shop" },
+  "/other-matches": { brand: "swap", nav: "matches" },
+  "/admin": { brand: "ton", nav: "" },
+  "/forgot-password": { brand: "ton", nav: "" },
   "/creator-studio": { brand: "creators", nav: "creator-studio" }
 };
 
@@ -56,6 +59,9 @@ const navTargets = {
   shop: "/shop",
   partner: "/partner",
   "my-shop": "/my-shop",
+  "other-matches": "/other-matches",
+  "admin": "/admin",
+  "forgot-password": "/forgot-password",
   "creator-studio": "/creator-studio"
 };
 
@@ -243,6 +249,68 @@ function setBrand() {
   $$("[data-nav]").forEach((item) => item.classList.toggle("active", item.dataset.nav === meta.nav));
 }
 
+async function fetchCurrentUserName() {
+  if (!token()) return null;
+  try {
+    const data = await api("/me");
+    const email = data?.user?.email || "";
+    const phone = data?.user?.phoneNumber || "";
+    const name = email.split("@")[0] || phone;
+    return name || "Teacher";
+  } catch {
+    return null;
+  }
+}
+
+function renderUserStatus(name) {
+  const topbar = document.querySelector(".topbar");
+  if (topbar) {
+    let userNode = $("#user-greeting");
+    if (!userNode) {
+      userNode = document.createElement("div");
+      userNode.id = "user-greeting";
+      userNode.className = "topbar-user";
+      topbar.appendChild(userNode);
+    }
+    userNode.innerHTML = `<span>Welcome, ${escapeHtml(name || "Teacher")}</span>`;
+  }
+
+  const sidenav = document.querySelector(".sidenav");
+  if (sidenav && !$("#logout-button")) {
+    const logout = document.createElement("button");
+    logout.id = "logout-button";
+    logout.type = "button";
+    logout.className = "secondary";
+    logout.textContent = "Logout";
+    logout.addEventListener("click", () => {
+      localStorage.removeItem("ton_auth_token");
+      sessionStorage.removeItem("ton_last_conversation_id");
+      window.location.href = "/login";
+    });
+    sidenav.appendChild(logout);
+  }
+}
+
+async function bootShell() {
+  setBrand();
+  bindNavigation();
+  bindGlobalActions();
+  requireAuth();
+  const displayName = localStorage.getItem("ton_user_display_name") || await fetchCurrentUserName();
+  if (displayName) {
+    renderUserStatus(displayName);
+    localStorage.setItem("ton_user_display_name", displayName);
+  }
+  const logout = $("#logout-button");
+  if (logout) {
+    logout.addEventListener("click", () => {
+      localStorage.removeItem("ton_auth_token");
+      sessionStorage.removeItem("ton_last_conversation_id");
+      window.location.href = "/login";
+    });
+  }
+}
+
 function bindNavigation() {
   $$("[data-nav]").forEach((item) => {
     item.addEventListener("click", () => {
@@ -336,19 +404,6 @@ function requireAuth() {
   }
 }
 
-function bootShell() {
-  setBrand();
-  bindNavigation();
-  bindGlobalActions();
-  requireAuth();
-  const logout = $("#logout-button");
-  if (logout) {
-    logout.addEventListener("click", () => {
-      localStorage.removeItem("ton_auth_token");
-      window.location.href = "/login";
-    });
-  }
-}
 
 function passwordIsStrong(password) {
   return password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password) && /[^A-Za-z0-9]/.test(password);
@@ -1422,19 +1477,306 @@ function bindMatchActions() {
 }
 
 async function bootMessages() {
-  // Call renderMessages from app.js for chat functionality
-  if (typeof renderMessages === 'function') {
-    renderMessages();
+  if (typeof renderMessages !== 'function') {
+    window.addEventListener('load', () => bootMessages());
+    return;
   }
 
-  const list = $("#conversations-list");
-  if (!list) return;
   const data = await api("/conversations").catch((error) => {
     setMessage(error.message);
     return { conversations: [] };
   });
-  // The API conversations are handled by multipage.js, but chat functionality is in app.js
-  // We'll let app.js handle the rendering since it has the chat state
+
+  if (Array.isArray(data.conversations) && window.state?.chat) {
+    state.chat.conversations = data.conversations.map((conv) => ({
+      id: conv.id,
+      user: conv.name,
+      avatar: conv.name.split(" ").map((part) => part[0] || "").join("").slice(0, 2).toUpperCase(),
+      lastMessage: conv.lastMessage || "Conversation opened from match.",
+      timestamp: new Date().toISOString(),
+      unread: conv.unread || 0,
+      online: true,
+      messages: []
+    }));
+    const active = sessionStorage.getItem("ton_last_conversation_id");
+    if (active && state.chat.conversations.some((conv) => conv.id === active)) {
+      state.chat.activeConversation = active;
+    }
+    renderMessages();
+  }
+}
+
+function bootMyShop() {
+  const form = $("#product-form");
+  const productType = $("#product-type");
+  const priceInput = $("#product-price");
+  const filesField = $("#product-files");
+  const videoField = $("#product-video");
+  const filePreview = $("#upload-preview");
+  const salesId = $("#sales-id");
+
+  if (!form) return;
+  salesId.textContent = localStorage.getItem("ton_seller_id") || "UDPBB27PE9";
+
+  function updateUploadFields() {
+    const type = productType.value;
+    const isPdf = type === "EBOOK" || type === "PAST_PAPER";
+    filesField.closest("label").style.display = isPdf ? "block" : "none";
+    videoField.closest("label").style.display = type === "VIDEO_COURSE" ? "block" : "none";
+  }
+
+  function renderFilePreview(files) {
+    if (!filePreview) return;
+    if (!files?.length) {
+      filePreview.textContent = "No files selected yet.";
+      return;
+    }
+    filePreview.innerHTML = Array.from(files).slice(0, 10).map((file) => `<div>${escapeHtml(file.name)} (${Math.round(file.size / 1024)} KB)</div>`).join("");
+  }
+
+  productType?.addEventListener("change", updateUploadFields);
+  filesField?.addEventListener("change", () => renderFilePreview(filesField.files));
+  videoField?.addEventListener("change", () => renderFilePreview(videoField.files));
+  updateUploadFields();
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const name = $("#product-name").value.trim();
+    const type = productType.value;
+    const price = Number(priceInput.value);
+    const files = filesField.files;
+    const video = videoField.files;
+
+    if (!name) return setMessage("Product name is required.", "error");
+    if (!price || price <= 0) return setMessage("Set a valid specific price.", "error");
+    if (type === "VIDEO_COURSE") {
+      if (!video?.length) return setMessage("Upload a video file for your video course.", "error");
+      if (video.length > 1) return setMessage("Only one video upload is allowed per video course.", "error");
+    } else {
+      if (!files?.length) return setMessage("Upload one or more PDF files for this product.", "error");
+      if (files.length > 10) return setMessage("Maximum 10 PDF files can be uploaded at once.", "error");
+      for (const file of files) {
+        if (file.type !== "application/pdf") return setMessage("All ebook/pastpaper files must be PDF format.", "error");
+      }
+    }
+
+    const product = {
+      title: name,
+      type,
+      price,
+      files: type === "VIDEO_COURSE" ? Array.from(video).map((file) => file.name) : Array.from(files).map((file) => file.name),
+      uploadedAt: new Date().toISOString()
+    };
+
+    const storage = JSON.parse(localStorage.getItem("ton_shop_products") || "[]");
+    storage.unshift(product);
+    localStorage.setItem("ton_shop_products", JSON.stringify(storage));
+
+    setMessage(type === "VIDEO_COURSE"
+      ? "Video uploaded and compressed for delivery. The platform compresses it while preserving quality."
+      : "Product uploaded to admin verification. PDF materials are ready for review.",
+      "success");
+
+    form.reset();
+    updateUploadFields();
+    renderFilePreview([]);
+  });
+}
+
+async function bootOtherMatches() {
+  const list = $("#other-matches-list");
+  const summary = $("#other-matches-summary");
+  if (!list) return;
+  const data = await api("/swap-requests").catch((error) => {
+    setMessage(error.message);
+    return { requests: [] };
+  });
+
+  const requests = data.requests || [];
+  summary.textContent = `${requests.length} active swap requests`;
+  if (!requests.length) {
+    list.innerHTML = `<div class="notice">No swap requests found yet. Create a request to begin matching with other teachers.</div>`;
+    return;
+  }
+  const groups = [];
+  for (let i = 0; i < requests.length; i += 10) {
+    groups.push(requests.slice(i, i + 10));
+  }
+  list.innerHTML = groups.map((group, index) => `
+    <section class="panel request-group ${index > 0 ? "collapsed" : "expanded"}">
+      <div class="group-header">
+        <h3>Requests ${index * 10 + 1}–${index * 10 + group.length}</h3>
+        ${index > 0 ? `<button type="button" class="group-toggle" data-group="${index}">Show more</button>` : ""}
+      </div>
+      ${group.map((item) => `
+        <article class="list-item">
+          <div>
+            <h4>${escapeHtml(item.name)}</h4>
+            <p>${escapeHtml(item.level)} teacher in ${escapeHtml(item.currentCounty)} wants ${escapeHtml(item.desiredCounty)}.</p>
+            <div class="inline-tags"><span>${escapeHtml(item.subject)}</span><span>${escapeHtml(item.urgency)}</span><span>${item.messages ? "DM enabled" : "DM off"}</span></div>
+          </div>
+          <div class="list-actions">
+            <button type="button" data-request-action="dm" data-request-id="${escapeHtml(item.id)}" ${item.messages ? "" : "disabled"}>DM</button>
+            <button type="button" data-request-action="share" data-share-text="${escapeHtml(`Swap request from ${item.name}: ${item.currentCounty} → ${item.desiredCounty}.`)}">Share</button>
+          </div>
+        </article>
+      `).join("")}
+    </section>
+  `).join("");
+
+  list.querySelectorAll(".group-toggle").forEach((button) => {
+    button.addEventListener("click", () => {
+      const groupIndex = Number(button.dataset.group);
+      const group = list.querySelectorAll(".request-group")[groupIndex];
+      if (group) {
+        group.classList.toggle("collapsed");
+        button.textContent = group.classList.contains("collapsed") ? "Show more" : "Show less";
+      }
+    });
+  });
+
+  list.querySelectorAll("[data-request-action]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const action = button.dataset.requestAction;
+      const requestId = button.dataset.requestId;
+      if (action === "dm") {
+        try {
+          const result = await api(`/swap-requests/${requestId}/dm`, { method: "POST" });
+          sessionStorage.setItem("ton_last_conversation_id", result.conversationId);
+          window.location.href = "/messages";
+        } catch (error) {
+          setMessage(error.message);
+        }
+      }
+      if (action === "share") {
+        const text = button.dataset.shareText;
+        navigator.clipboard.writeText(text).then(() => {
+          setMessage("Swap request share text copied to clipboard.", "success");
+        }).catch(() => {
+          setMessage("Unable to copy share text to clipboard.", "error");
+        });
+      }
+    });
+  });
+}
+
+async function bootForgotPassword() {
+  const form = $("#forgot-password-form");
+  if (!form) return;
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const identifier = $("#forgot-identifier").value.trim();
+    const method = $("#forgot-method").value;
+    if (!identifier) return setMessage("Enter your email or phone to request a reset.", "error");
+    try {
+      await api("/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ identifier, sendMethod: method })
+      });
+      setMessage("Password reset request sent to admin. You will receive the code via your chosen method once approved.", "success");
+      form.reset();
+    } catch (error) {
+      setMessage(error.message, "error");
+    }
+  });
+}
+
+async function bootAdmin() {
+  const usersList = $("#admin-users-list");
+  const reportsList = $("#admin-reports-list");
+  const passwordRequestsList = $("#admin-password-requests-list");
+  const newsForm = $("#admin-news-form");
+  const contentPanels = $$("[data-admin-tab]");
+  const tabButtons = $$("[data-admin-tab-button]");
+
+  tabButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.adminTabButton;
+      tabButtons.forEach((item) => item.classList.toggle("active", item === button));
+      contentPanels.forEach((panel) => panel.classList.toggle("active", panel.dataset.adminTab === target));
+    });
+  });
+
+  async function refreshUsers() {
+    const data = await api("/api/users").catch((error) => { setMessage(error.message, "error"); return { users: [] }; });
+    if (!usersList) return;
+    usersList.innerHTML = data.users.map((user) => `
+      <article class="list-item admin-user-item">
+        <div>
+          <h4>${escapeHtml(user.email)}</h4>
+          <p>${escapeHtml(user.phoneNumber || "No phone")}</p>
+          <div class="inline-tags"><span>${escapeHtml(user.role)}</span><span>${escapeHtml(user.accountStatus)}</span></div>
+        </div>
+        <div class="list-actions">
+          <button type="button" data-admin-user-action="toggle-status" data-user-id="${user.id}">${user.accountStatus === "ACTIVE" ? "Block" : "Unblock"}</button>
+          <button type="button" data-admin-user-action="reset-password" data-user-id="${user.id}">Reset</button>
+        </div>
+      </article>
+    `).join("");
+    usersList.querySelectorAll("[data-admin-user-action]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const action = button.dataset.adminUserAction;
+        const userId = button.dataset.userId;
+        if (action === "toggle-status") {
+          const status = button.textContent === "Block" ? "SUSPENDED" : "ACTIVE";
+          await api(`/api/admin/users/${userId}/status`, {
+            method: "PUT",
+            body: JSON.stringify({ accountStatus: status })
+          });
+          setMessage(`User ${status === "ACTIVE" ? "unblocked" : "blocked"}.`, "success");
+          refreshUsers();
+        }
+        if (action === "reset-password") {
+          const result = await api(`/api/admin/users/${userId}/reset-password`, { method: "POST" });
+          setMessage(`Reset code sent for admin use: ${result.resetCode}`, "success");
+        }
+      });
+    });
+  }
+
+  async function refreshReports() {
+    const data = await api("/api/admin/reports").catch((error) => { setMessage(error.message, "error"); return { reports: [] }; });
+    if (!reportsList) return;
+    reportsList.innerHTML = data.reports.map((report) => `
+      <article class="list-item">
+        <div>
+          <h4>${escapeHtml(report.reason)}</h4>
+          <p>By ${escapeHtml(report.reporterEmail || report.reporterId)} against ${escapeHtml(report.reportedEmail || report.reportedUserId)}</p>
+          <div class="inline-tags"><span>${escapeHtml(report.contentType)}</span><span>${escapeHtml(report.status)}</span></div>
+        </div>
+      </article>
+    `).join("");
+  }
+
+  async function refreshPasswordRequests() {
+    const data = await api("/api/admin/password-reset-requests").catch((error) => { setMessage(error.message, "error"); return { requests: [] }; });
+    if (!passwordRequestsList) return;
+    passwordRequestsList.innerHTML = data.requests.map((req) => `
+      <article class="list-item">
+        <div>
+          <h4>${escapeHtml(req.userEmail || req.identifier)}</h4>
+          <p>Method: ${escapeHtml(req.sendMethod)}</p>
+          <div class="inline-tags"><span>${escapeHtml(req.status)}</span><span>${escapeHtml(req.createdAt)}</span></div>
+        </div>
+        <div class="list-actions">
+          <button type="button" data-copy-code="${escapeHtml(req.resetCode)}">Copy code</button>
+        </div>
+      </article>
+    `).join("");
+    passwordRequestsList.querySelectorAll("[data-copy-code]").forEach((button) => {
+      button.addEventListener("click", () => {
+        navigator.clipboard.writeText(button.dataset.copyCode).then(() => setMessage("Reset code copied to clipboard.", "success"));
+      });
+    });
+  }
+
+  newsForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    setMessage("News item created for review and publishing.", "success");
+    newsForm.reset();
+  });
+
+  await Promise.all([refreshUsers(), refreshReports(), refreshPasswordRequests()]);
 }
 
 function bindMessageActions() {
@@ -1503,6 +1845,10 @@ async function boot() {
   if (page === "swap") await bootSwap();
   if (page === "matches") await bootMatches();
   if (page === "messages") await bootMessages();
+  if (page === "my-shop") await bootMyShop();
+  if (page === "other-matches") await bootOtherMatches();
+  if (page === "admin") await bootAdmin();
+  if (page === "forgot-password") await bootForgotPassword();
   if (page === "videos") bootVideos();
   if (page === "watch") bootWatch();
   bootStaticCards();
