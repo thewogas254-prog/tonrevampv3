@@ -32,10 +32,10 @@ const subjects = [
 ];
 
 const teachers = [
-  { name: "Mary Achieng", level: "SECONDARY", subject: "English + Literature", currentCounty: "Kisumu", desiredCounty: "Nairobi", month: "2026-08", urgency: "Urgent", calls: true, messages: true },
-  { name: "Peter Mwangi", level: "SECONDARY", subject: "Mathematics + Business Studies", currentCounty: "Nakuru", desiredCounty: "Nairobi", month: "2026-09", urgency: "Not urgent", calls: false, messages: true },
-  { name: "Faith Wanjiku", level: "PRIMARY", subject: "NULL", currentCounty: "Kiambu", desiredCounty: "Nairobi", month: "2026-07", urgency: "Urgent", calls: true, messages: false },
-  { name: "Daniel Otieno", level: "SECONDARY", subject: "English + Literature", currentCounty: "Kisumu", desiredCounty: "Mombasa", month: "2026-08", urgency: "Not urgent", calls: true, messages: true }
+  { name: "Mary Achieng", level: "SECONDARY", subject: "English + Literature", currentCounty: "Kisumu", desiredCounty: "Nairobi", month: "2026-08", urgency: "Urgent", calls: true, messages: true, phone: "+254712345678" },
+  { name: "Peter Mwangi", level: "SECONDARY", subject: "Mathematics + Business Studies", currentCounty: "Nakuru", desiredCounty: "Nairobi", month: "2026-09", urgency: "Not urgent", calls: false, messages: true, phone: "+254723456789" },
+  { name: "Faith Wanjiku", level: "PRIMARY", subject: "NULL", currentCounty: "Kiambu", desiredCounty: "Nairobi", month: "2026-07", urgency: "Urgent", calls: true, messages: false, phone: "+254734567890" },
+  { name: "Daniel Otieno", level: "SECONDARY", subject: "English + Literature", currentCounty: "Kisumu", desiredCounty: "Mombasa", month: "2026-08", urgency: "Not urgent", calls: true, messages: true, phone: "+254745678901" }
 ];
 
 const news = [
@@ -392,6 +392,7 @@ const state = {
         id: "mary-achieng",
         user: "Mary Achieng",
         avatar: "MA",
+        phone: "+254712345678",
         lastMessage: "Mary asked whether August 2026 is still suitable for your transfer plan.",
         timestamp: "2026-05-04T10:30:00Z",
         unread: 2,
@@ -445,6 +446,7 @@ const state = {
         id: "peter-mwangi",
         user: "Peter Mwangi",
         avatar: "PM",
+        phone: "+254723456789",
         lastMessage: "Thanks for the connection! Let's discuss the transfer details.",
         timestamp: "2026-05-03T16:45:00Z",
         unread: 0,
@@ -1292,7 +1294,29 @@ function bindChatEvents() {
       emojiPicker.style.display = 'none';
     }
   });
-}
+
+  // Call button handler
+  const callBtn = $("#call-btn");
+  callBtn?.addEventListener("click", () => {
+    if (!state.chat.activeConversation) return;
+
+    const conversation = state.chat.conversations.find(c => c.id === state.chat.activeConversation);
+    if (!conversation || !conversation.phone) return;
+
+    // Copy phone number to clipboard and show alert
+    navigator.clipboard.writeText(conversation.phone).then(() => {
+      alert(`Phone number copied to clipboard: ${conversation.phone}\n\nYou can now paste this number into your phone's dialer to call ${conversation.user}.`);
+    }).catch(() => {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement("textarea");
+      textArea.value = conversation.phone;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert(`Phone number copied to clipboard: ${conversation.phone}\n\nYou can now paste this number into your phone's dialer to call ${conversation.user}.`);
+    });
+  });
 
 function sendMessage() {
   const messageInput = $("#message-input");

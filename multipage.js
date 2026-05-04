@@ -1422,31 +1422,19 @@ function bindMatchActions() {
 }
 
 async function bootMessages() {
+  // Call renderMessages from app.js for chat functionality
+  if (typeof renderMessages === 'function') {
+    renderMessages();
+  }
+
   const list = $("#conversations-list");
   if (!list) return;
   const data = await api("/conversations").catch((error) => {
     setMessage(error.message);
     return { conversations: [] };
   });
-  list.innerHTML = data.conversations.length ? data.conversations.map((conversation) => `
-    <article class="list-item">
-      <div>
-        <h3>${conversation.name}</h3>
-        <p>${conversation.lastMessage}</p>
-        <div class="inline-tags">
-          <span>${conversation.archived ? "Archived" : "Active"}</span>
-          <span>${conversation.muted ? "Muted" : "Notifications on"}</span>
-          <span>${conversation.blocked ? "Blocked" : "Allowed"}</span>
-        </div>
-      </div>
-      <div class="list-actions">
-        <button data-message-action="open" data-conversation-id="${conversation.id}">Open</button>
-        <button class="secondary" data-message-action="archive" data-conversation-id="${conversation.id}">Archive</button>
-        <button class="danger" data-message-action="block" data-conversation-id="${conversation.id}">Block</button>
-      </div>
-    </article>
-  `).join("") : `<div class="notice">No conversations yet. Open a DM from the Matches page.</div>`;
-  bindMessageActions();
+  // The API conversations are handled by multipage.js, but chat functionality is in app.js
+  // We'll let app.js handle the rendering since it has the chat state
 }
 
 function bindMessageActions() {
