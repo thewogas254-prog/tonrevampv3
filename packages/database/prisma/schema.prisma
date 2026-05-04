@@ -242,27 +242,27 @@ enum AdMediaType {
 }
 
 model User {
-  id              String        @id @default(uuid()) @db.Uuid
-  email           String        @unique @db.VarChar(255)
-  phoneNumber     String        @unique @map("phone_number") @db.VarChar(20)
-  passwordHash    String        @map("password_hash")
-  emailVerified   Boolean       @default(false) @map("email_verified")
-  phoneVerified   Boolean       @default(false) @map("phone_verified")
-  role            UserRole      @default(TEACHER)
-  accountStatus   AccountStatus @default(ACTIVE) @map("account_status")
-  lastLoginAt     DateTime?     @map("last_login_at") @db.Timestamp(6)
-  isDeleted       Boolean       @default(false) @map("is_deleted")
-  deletedAt       DateTime?     @map("deleted_at") @db.Timestamp(6)
-  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamp(6)
+  id            String        @id @default(uuid()) @db.Uuid
+  email         String        @unique @db.VarChar(255)
+  phoneNumber   String        @unique @map("phone_number") @db.VarChar(20)
+  passwordHash  String        @map("password_hash")
+  emailVerified Boolean       @default(false) @map("email_verified")
+  phoneVerified Boolean       @default(false) @map("phone_verified")
+  role          UserRole      @default(TEACHER)
+  accountStatus AccountStatus @default(ACTIVE) @map("account_status")
+  lastLoginAt   DateTime?     @map("last_login_at") @db.Timestamp(6)
+  isDeleted     Boolean       @default(false) @map("is_deleted")
+  deletedAt     DateTime?     @map("deleted_at") @db.Timestamp(6)
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamp(6)
 
   sessions                  UserSession[]
   emailChangeLogs           EmailChangeLog[]
   profileChangeLimits       ProfileChangeLimit[]
   teacherProfile            TeacherProfile?
   swapRequests              SwapRequest[]
-  matchesAsTeacherA         Match[]              @relation("TeacherAMatches")
-  matchesAsTeacherB         Match[]              @relation("TeacherBMatches")
+  matchesAsTeacherA         Match[]                   @relation("TeacherAMatches")
+  matchesAsTeacherB         Match[]                   @relation("TeacherBMatches")
   matchInteractions         MatchInteraction[]
   conversationParticipants  ConversationParticipant[]
   sentMessages              Message[]
@@ -274,14 +274,15 @@ model User {
   sellerAccount             SellerAccount?
   purchases                 ProductPurchase[]
   wallet                    Wallet?
-  reportsMade               Report[]             @relation("ReportsMade")
-  reportsReceived           Report[]             @relation("ReportsReceived")
-  moderationActionsMade     ModerationAction[]   @relation("ModerationActionsMade")
-  moderationActionsReceived ModerationAction[]   @relation("ModerationActionsReceived")
+  reportsMade               Report[]                  @relation("ReportsMade")
+  reportsReceived           Report[]                  @relation("ReportsReceived")
+  moderationActionsMade     ModerationAction[]        @relation("ModerationActionsMade")
+  moderationActionsReceived ModerationAction[]        @relation("ModerationActionsReceived")
   activityLogs              UserActivityLog[]
   partnerProfile            PartnerProfile?
   adCampaigns               AdCampaign[]
-  adApprovals               AdApproval[]         @relation("AdApprovalsReviewed")
+  adApprovals               AdApproval[]              @relation("AdApprovalsReviewed")
+  passwordResetRequests     PasswordResetRequest[]
 
   @@index([role])
   @@index([accountStatus])
@@ -322,12 +323,12 @@ model County {
   name String @unique @db.VarChar(100)
   code String @unique @db.VarChar(20)
 
-  subcounties           Subcounty[]
-  profiles              TeacherProfile[] @relation("ProfileCurrentCounty")
-  currentSwapRequests   SwapRequest[]    @relation("SwapCurrentCounty")
-  desiredSwapRequests   SwapRequest[]    @relation("SwapDesiredCounty")
-  partnerProfiles       PartnerProfile[]
-  targetedAdCampaigns   AdCampaign[]
+  subcounties         Subcounty[]
+  profiles            TeacherProfile[] @relation("ProfileCurrentCounty")
+  currentSwapRequests SwapRequest[]    @relation("SwapCurrentCounty")
+  desiredSwapRequests SwapRequest[]    @relation("SwapDesiredCounty")
+  partnerProfiles     PartnerProfile[]
+  targetedAdCampaigns AdCampaign[]
 
   @@map("counties")
 }
@@ -362,9 +363,9 @@ model SubjectCombination {
   subjectTwoId   String @map("subject_two_id") @db.Uuid
   normalizedName String @unique @map("normalized_name") @db.VarChar(255)
 
-  subjectOne  Subject          @relation("SubjectOne", fields: [subjectOneId], references: [id])
-  subjectTwo  Subject          @relation("SubjectTwo", fields: [subjectTwoId], references: [id])
-  profiles    TeacherProfile[]
+  subjectOne   Subject          @relation("SubjectOne", fields: [subjectOneId], references: [id])
+  subjectTwo   Subject          @relation("SubjectTwo", fields: [subjectTwoId], references: [id])
+  profiles     TeacherProfile[]
   swapRequests SwapRequest[]
 
   @@unique([subjectOneId, subjectTwoId])
@@ -372,22 +373,22 @@ model SubjectCombination {
 }
 
 model TeacherProfile {
-  id                   String         @id @default(uuid()) @db.Uuid
-  userId               String         @unique @map("user_id") @db.Uuid
-  firstName            String?        @map("first_name") @db.VarChar(100)
-  lastName             String?        @map("last_name") @db.VarChar(100)
-  profilePhotoUrl      String?        @map("profile_photo_url")
-  teachingLevel        TeachingLevel  @map("teaching_level")
-  subjectCombinationId String?        @map("subject_combination_id") @db.Uuid
-  currentCountyId      String?        @map("current_county_id") @db.Uuid
-  currentSubcountyId   String?        @map("current_subcounty_id") @db.Uuid
-  schoolName           String?        @map("school_name") @db.VarChar(255)
+  id                   String        @id @default(uuid()) @db.Uuid
+  userId               String        @unique @map("user_id") @db.Uuid
+  firstName            String?       @map("first_name") @db.VarChar(100)
+  lastName             String?       @map("last_name") @db.VarChar(100)
+  profilePhotoUrl      String?       @map("profile_photo_url")
+  teachingLevel        TeachingLevel @map("teaching_level")
+  subjectCombinationId String?       @map("subject_combination_id") @db.Uuid
+  currentCountyId      String?       @map("current_county_id") @db.Uuid
+  currentSubcountyId   String?       @map("current_subcounty_id") @db.Uuid
+  schoolName           String?       @map("school_name") @db.VarChar(255)
   biography            String?
-  allowMessages        Boolean        @default(true) @map("allow_messages")
-  allowCalls           Boolean        @default(true) @map("allow_calls")
-  profileCompleted     Boolean        @default(false) @map("profile_completed")
-  createdAt            DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt            DateTime       @updatedAt @map("updated_at") @db.Timestamp(6)
+  allowMessages        Boolean       @default(true) @map("allow_messages")
+  allowCalls           Boolean       @default(true) @map("allow_calls")
+  profileCompleted     Boolean       @default(false) @map("profile_completed")
+  createdAt            DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt            DateTime      @updatedAt @map("updated_at") @db.Timestamp(6)
 
   user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   subjectCombination SubjectCombination? @relation(fields: [subjectCombinationId], references: [id])
@@ -509,16 +510,16 @@ model ConversationParticipant {
 }
 
 model Message {
-  id             String   @id @default(uuid()) @db.Uuid
-  conversationId String   @map("conversation_id") @db.Uuid
-  senderId       String   @map("sender_id") @db.Uuid
-  messageBody    String?  @map("message_body")
-  attachmentUrl  String?  @map("attachment_url")
-  isRead         Boolean  @default(false) @map("is_read")
-  isDeleted      Boolean  @default(false) @map("is_deleted")
+  id             String    @id @default(uuid()) @db.Uuid
+  conversationId String    @map("conversation_id") @db.Uuid
+  senderId       String    @map("sender_id") @db.Uuid
+  messageBody    String?   @map("message_body")
+  attachmentUrl  String?   @map("attachment_url")
+  isRead         Boolean   @default(false) @map("is_read")
+  isDeleted      Boolean   @default(false) @map("is_deleted")
   deletedAt      DateTime? @map("deleted_at") @db.Timestamp(6)
-  reported       Boolean  @default(false)
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  reported       Boolean   @default(false)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender       User         @relation(fields: [senderId], references: [id])
@@ -585,14 +586,14 @@ model BlogPost {
 }
 
 model BlogComment {
-  id              String   @id @default(uuid()) @db.Uuid
-  blogPostId      String   @map("blog_post_id") @db.Uuid
-  userId          String   @map("user_id") @db.Uuid
-  parentCommentId String?  @map("parent_comment_id") @db.Uuid
-  commentBody     String?  @map("comment_body")
-  isDeleted       Boolean  @default(false) @map("is_deleted")
+  id              String    @id @default(uuid()) @db.Uuid
+  blogPostId      String    @map("blog_post_id") @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  parentCommentId String?   @map("parent_comment_id") @db.Uuid
+  commentBody     String?   @map("comment_body")
+  isDeleted       Boolean   @default(false) @map("is_deleted")
   deletedAt       DateTime? @map("deleted_at") @db.Timestamp(6)
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
 
   blogPost BlogPost      @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
   user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -605,20 +606,20 @@ model BlogComment {
 }
 
 model MediaContent {
-  id              String        @id @default(uuid()) @db.Uuid
-  creatorId       String        @map("creator_id") @db.Uuid
-  mediaType       MediaType     @map("media_type")
-  title           String?       @db.VarChar(255)
+  id              String     @id @default(uuid()) @db.Uuid
+  creatorId       String     @map("creator_id") @db.Uuid
+  mediaType       MediaType  @map("media_type")
+  title           String?    @db.VarChar(255)
   description     String?
-  thumbnailUrl    String?       @map("thumbnail_url")
-  mediaUrl        String?       @map("media_url")
-  durationSeconds Int?          @map("duration_seconds")
-  visibility      Visibility    @default(PUBLIC)
-  viewsCount      Int           @default(0) @map("views_count")
-  likesCount      Int           @default(0) @map("likes_count")
-  isDeleted       Boolean       @default(false) @map("is_deleted")
-  deletedAt       DateTime?     @map("deleted_at") @db.Timestamp(6)
-  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+  thumbnailUrl    String?    @map("thumbnail_url")
+  mediaUrl        String?    @map("media_url")
+  durationSeconds Int?       @map("duration_seconds")
+  visibility      Visibility @default(PUBLIC)
+  viewsCount      Int        @default(0) @map("views_count")
+  likesCount      Int        @default(0) @map("likes_count")
+  isDeleted       Boolean    @default(false) @map("is_deleted")
+  deletedAt       DateTime?  @map("deleted_at") @db.Timestamp(6)
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamp(6)
 
   creator  User           @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   comments MediaComment[]
@@ -630,14 +631,14 @@ model MediaContent {
 }
 
 model MediaComment {
-  id              String   @id @default(uuid()) @db.Uuid
-  mediaId         String   @map("media_id") @db.Uuid
-  userId          String   @map("user_id") @db.Uuid
-  commentBody     String?  @map("comment_body")
-  parentCommentId String?  @map("parent_comment_id") @db.Uuid
-  isDeleted       Boolean  @default(false) @map("is_deleted")
+  id              String    @id @default(uuid()) @db.Uuid
+  mediaId         String    @map("media_id") @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  commentBody     String?   @map("comment_body")
+  parentCommentId String?   @map("parent_comment_id") @db.Uuid
+  isDeleted       Boolean   @default(false) @map("is_deleted")
   deletedAt       DateTime? @map("deleted_at") @db.Timestamp(6)
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
 
   media   MediaContent   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
   user    User           @relation(fields: [userId], references: [id])
@@ -690,8 +691,8 @@ model Product {
   deletedAt      DateTime?      @map("deleted_at") @db.Timestamp(6)
   createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
 
-  seller    SellerAccount    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  category  ProductCategory? @relation(fields: [categoryId], references: [id])
+  seller    SellerAccount     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category  ProductCategory?  @relation(fields: [categoryId], references: [id])
   purchases ProductPurchase[]
 
   @@index([sellerId])
@@ -793,7 +794,7 @@ model PasswordResetRequest {
   resetCode   String              @map("reset_code") @db.VarChar(50)
   status      PasswordResetStatus @default(PENDING)
   createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamp(6)
-  processedAt DateTime?          @map("processed_at") @db.Timestamp(6)
+  processedAt DateTime?           @map("processed_at") @db.Timestamp(6)
 
   user User? @relation(fields: [userId], references: [id])
 
@@ -846,8 +847,8 @@ model PartnerProfile {
   createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt          DateTime           @updatedAt @map("updated_at") @db.Timestamp(6)
 
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  county    County?      @relation(fields: [countyId], references: [id])
+  user      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  county    County?                  @relation(fields: [countyId], references: [id])
   campaigns AdCampaign[]
   otps      PartnerOtpVerification[]
 
@@ -873,33 +874,33 @@ model PartnerOtpVerification {
 }
 
 model AdCampaign {
-  id               String           @id @default(uuid()) @db.Uuid
-  userId           String           @map("user_id") @db.Uuid
-  partnerProfileId String           @map("partner_profile_id") @db.Uuid
-  campaignType     AdCampaignType   @map("campaign_type")
-  status           AdCampaignStatus @default(DRAFT)
-  title            String           @db.VarChar(255)
-  ctaText          String?          @map("cta_text") @db.VarChar(80)
-  destinationUrl   String?          @map("destination_url")
-  targetCountyId   String?          @map("target_county_id") @db.Uuid
-  isNationwide     Boolean          @default(false) @map("is_nationwide")
-  placement        String?          @db.VarChar(120)
-  audienceInterest String?          @map("audience_interest") @db.VarChar(120)
-  startDate        DateTime?        @map("start_date") @db.Date
-  endDate          DateTime?        @map("end_date") @db.Date
-  durationDays     Int              @default(7) @map("duration_days")
-  frequency        AdFrequency      @default(ALL_DAY)
-  baseCost         Decimal          @default(0) @map("base_cost") @db.Decimal(12, 2)
-  durationMultiplier Decimal        @default(1) @map("duration_multiplier") @db.Decimal(6, 2)
-  frequencyMultiplier Decimal       @default(1) @map("frequency_multiplier") @db.Decimal(6, 2)
-  locationMultiplier Decimal        @default(1) @map("location_multiplier") @db.Decimal(6, 2)
-  totalCost        Decimal          @default(0) @map("total_cost") @db.Decimal(12, 2)
-  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamp(6)
+  id                  String           @id @default(uuid()) @db.Uuid
+  userId              String           @map("user_id") @db.Uuid
+  partnerProfileId    String           @map("partner_profile_id") @db.Uuid
+  campaignType        AdCampaignType   @map("campaign_type")
+  status              AdCampaignStatus @default(DRAFT)
+  title               String           @db.VarChar(255)
+  ctaText             String?          @map("cta_text") @db.VarChar(80)
+  destinationUrl      String?          @map("destination_url")
+  targetCountyId      String?          @map("target_county_id") @db.Uuid
+  isNationwide        Boolean          @default(false) @map("is_nationwide")
+  placement           String?          @db.VarChar(120)
+  audienceInterest    String?          @map("audience_interest") @db.VarChar(120)
+  startDate           DateTime?        @map("start_date") @db.Date
+  endDate             DateTime?        @map("end_date") @db.Date
+  durationDays        Int              @default(7) @map("duration_days")
+  frequency           AdFrequency      @default(ALL_DAY)
+  baseCost            Decimal          @default(0) @map("base_cost") @db.Decimal(12, 2)
+  durationMultiplier  Decimal          @default(1) @map("duration_multiplier") @db.Decimal(6, 2)
+  frequencyMultiplier Decimal          @default(1) @map("frequency_multiplier") @db.Decimal(6, 2)
+  locationMultiplier  Decimal          @default(1) @map("location_multiplier") @db.Decimal(6, 2)
+  totalCost           Decimal          @default(0) @map("total_cost") @db.Decimal(12, 2)
+  createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime         @updatedAt @map("updated_at") @db.Timestamp(6)
 
-  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  partnerProfile PartnerProfile    @relation(fields: [partnerProfileId], references: [id], onDelete: Cascade)
-  targetCounty   County?           @relation(fields: [targetCountyId], references: [id])
+  user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  partnerProfile PartnerProfile        @relation(fields: [partnerProfileId], references: [id], onDelete: Cascade)
+  targetCounty   County?               @relation(fields: [targetCountyId], references: [id])
   content        AdCampaignContent?
   media          AdCampaignMedia[]
   invoices       AdInvoice[]
@@ -931,17 +932,17 @@ model AdCampaignContent {
 }
 
 model AdCampaignMedia {
-  id              String      @id @default(uuid()) @db.Uuid
-  campaignId      String      @map("campaign_id") @db.Uuid
-  mediaType       AdMediaType @map("media_type")
-  mediaUrl        String      @map("media_url")
-  originalName    String?     @map("original_name")
-  sortOrder       Int         @default(0) @map("sort_order")
-  width           Int?
-  height          Int?
-  durationSeconds Int?        @map("duration_seconds")
+  id               String         @id @default(uuid()) @db.Uuid
+  campaignId       String         @map("campaign_id") @db.Uuid
+  mediaType        AdMediaType    @map("media_type")
+  mediaUrl         String         @map("media_url")
+  originalName     String?        @map("original_name")
+  sortOrder        Int            @default(0) @map("sort_order")
+  width            Int?
+  height           Int?
+  durationSeconds  Int?           @map("duration_seconds")
   validationStatus ApprovalStatus @default(PENDING) @map("validation_status")
-  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamp(6)
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
 
   campaign AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
@@ -951,13 +952,13 @@ model AdCampaignMedia {
 }
 
 model AdInvoice {
-  id          String          @id @default(uuid()) @db.Uuid
-  campaignId  String          @map("campaign_id") @db.Uuid
-  invoiceNo   String          @unique @map("invoice_no") @db.VarChar(40)
-  amount      Decimal         @db.Decimal(12, 2)
-  status      AdPaymentStatus @default(PENDING)
-  dueAt       DateTime?       @map("due_at") @db.Timestamp(6)
-  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamp(6)
+  id         String          @id @default(uuid()) @db.Uuid
+  campaignId String          @map("campaign_id") @db.Uuid
+  invoiceNo  String          @unique @map("invoice_no") @db.VarChar(40)
+  amount     Decimal         @db.Decimal(12, 2)
+  status     AdPaymentStatus @default(PENDING)
+  dueAt      DateTime?       @map("due_at") @db.Timestamp(6)
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamp(6)
 
   campaign AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
@@ -986,13 +987,13 @@ model AdPayment {
 }
 
 model AdApproval {
-  id          String         @id @default(uuid()) @db.Uuid
-  campaignId  String         @map("campaign_id") @db.Uuid
-  reviewerId  String?        @map("reviewer_id") @db.Uuid
-  status      ApprovalStatus @default(PENDING)
-  notes       String?
-  reviewedAt  DateTime?      @map("reviewed_at") @db.Timestamp(6)
-  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
+  id         String         @id @default(uuid()) @db.Uuid
+  campaignId String         @map("campaign_id") @db.Uuid
+  reviewerId String?        @map("reviewer_id") @db.Uuid
+  status     ApprovalStatus @default(PENDING)
+  notes      String?
+  reviewedAt DateTime?      @map("reviewed_at") @db.Timestamp(6)
+  createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
 
   campaign AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   reviewer User?      @relation("AdApprovalsReviewed", fields: [reviewerId], references: [id])
@@ -1004,13 +1005,13 @@ model AdApproval {
 }
 
 model AdCampaignStatusLog {
-  id         String           @id @default(uuid()) @db.Uuid
-  campaignId String           @map("campaign_id") @db.Uuid
+  id         String            @id @default(uuid()) @db.Uuid
+  campaignId String            @map("campaign_id") @db.Uuid
   fromStatus AdCampaignStatus? @map("from_status")
   toStatus   AdCampaignStatus  @map("to_status")
-  actorId    String?          @map("actor_id") @db.Uuid
+  actorId    String?           @map("actor_id") @db.Uuid
   reason     String?
-  createdAt  DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
+  createdAt  DateTime          @default(now()) @map("created_at") @db.Timestamp(6)
 
   campaign AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
