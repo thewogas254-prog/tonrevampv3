@@ -106,6 +106,42 @@ const staticVideos = [
   ["form-two-maths", "Making Form 2 Mathematics Less Abstract", "Peter Mwangi", "STEM", "5.6K views", "15:35", "#7a4f9a"]
 ];
 
+const staticBlogs = [
+  {
+    id: "transfer-request-guide",
+    title: "How to prepare a strong transfer request",
+    topic: "TSC",
+    author: "Mary Achieng",
+    date: "2026-05-01",
+    excerpt: "Practical steps for preparing documents, choosing target counties, and avoiding common transfer request errors.",
+    content: "<p>Start with a clear reason for transfer, confirm your document set, and choose counties where your subject combination has realistic demand.</p><p>Keep copies of appointment letters, academic certificates, and supporting evidence before submitting through the official process.</p>",
+    likes: 245,
+    comments: ["This guide is useful for first-time applicants.", "Please add more examples for medical transfers."]
+  },
+  {
+    id: "cbc-local-materials",
+    title: "CBC science lessons using local materials",
+    topic: "CBC",
+    author: "Faith Wanjiku",
+    date: "2026-04-28",
+    excerpt: "A lightweight classroom method for turning locally available materials into hands-on CBC practical lessons.",
+    content: "<p>Teachers can improve learner engagement by mapping everyday materials to clear competencies, then documenting observations in simple learner journals.</p>",
+    likes: 188,
+    comments: ["This would work well for Grade 6 revision."]
+  },
+  {
+    id: "ai-lesson-planning",
+    title: "Using AI to plan better lessons",
+    topic: "Technology",
+    author: "Tom Omondi",
+    date: "2026-04-20",
+    excerpt: "A teacher-safe workflow for drafting lesson outlines, activities, and assessment prompts with AI support.",
+    content: "<p>Use AI as a planning assistant, then review every output for curriculum fit, learner level, and local classroom realities.</p>",
+    likes: 132,
+    comments: []
+  }
+];
+
 const adCreatives = [
   {
     title: "CBC Revision Pack",
@@ -292,6 +328,26 @@ function renderUserStatus(name) {
   }
 }
 
+async function refreshNotificationBadge() {
+  if (!token()) return;
+  try {
+    const data = await api("/notifications");
+    const nav = document.querySelector('[data-nav="notifications"]');
+    if (!nav) return;
+    let badge = nav.querySelector(".nav-badge");
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.className = "nav-badge";
+      nav.appendChild(badge);
+    }
+    const unread = Number(data.unreadCount || 0);
+    badge.textContent = unread > 99 ? "99+" : String(unread);
+    badge.hidden = unread === 0;
+  } catch {
+    // Badge refresh is non-critical and should not block page boot.
+  }
+}
+
 async function bootShell() {
   setBrand();
   bindNavigation();
@@ -302,6 +358,7 @@ async function bootShell() {
     renderUserStatus(displayName);
     localStorage.setItem("ton_user_display_name", displayName);
   }
+  refreshNotificationBadge();
   const logout = $("#logout-button");
   if (logout) {
     logout.addEventListener("click", () => {
@@ -325,10 +382,6 @@ function bindGlobalActions() {
     const button = event.target.closest("[data-action]");
     if (!button) return;
     const action = button.dataset.action;
-    if (action === "mark-read") {
-      $$(".list-item").forEach((item) => item.classList.add("is-read"));
-      setMessage("Notifications marked as read.", "success");
-    }
     if (action === "submit-product") {
       setMessage("Product submitted to verification pipeline.", "success");
     }
@@ -1514,36 +1567,181 @@ function bindMatchActions() {
 }
 
 async function bootMessages() {
-  if (typeof renderMessages !== 'function') {
-    window.addEventListener('load', () => bootMessages());
-    return;
-  }
-
   const data = await api("/conversations").catch((error) => {
     setMessage(error.message);
     return { conversations: [] };
   });
 
-  if (Array.isArray(data.conversations) && window.state?.chat) {
-    state.chat.conversations = data.conversations.map((conv) => ({
-      id: conv.id,
-      user: conv.name,
-      avatar: conv.name.split(" ").map((part) => part[0] || "").join("").slice(0, 2).toUpperCase(),
-      lastMessage: conv.lastMessage || "Conversation opened from match.",
-      timestamp: new Date().toISOString(),
-      unread: conv.unread || 0,
-      online: true,
-      messages: []
-    }));
-    const active = sessionStorage.getItem("ton_last_conversation_id");
-    if (active && state.chat.conversations.some((conv) => conv.id === active)) {
-      state.chat.activeConversation = active;
-    }
-    renderMessages();
+  const conversations = Array.isArray(data.conversations) ? data.conversations : [];
+  const list = $("#conversations-list");
+  const chatName = $("#chat-user-name");
+  const chatStatus = $("#chat-status");
+  const messages = $("#chat-messages");
+  const input = $("#message-input");
+  const send = $("#send-btn");
+  let activeConversation = null;
+  let activeMessages = [];
+
+  function renderEmpty() {
+    if (list) list.innerHTML = `<div class="notice">No conversations yet. Open a DM from a match to start a thread.</div>`;
+    if (messages) messages.innerHTML = `<div class="no-chat-selected"><p>Select a conversation to start messaging</p></div>`;
+    activeConversation = null;
   }
+
+  function renderMessageHistory(items = []) {
+    if (!messages) return;
+    activeMessages = items;
+    messages.innerHTML = items.length ? items.map((message) => `
+      <div class="message-row ${message.mine ? "sent" : "received"}">
+        <div class="message-bubble">
+          ${escapeHtml(message.body)}
+          <span class="message-time">${new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+        </div>
+      </div>
+    `).join("") : `<div class="no-chat-selected"><p>No messages yet. Send the first message.</p></div>`;
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  async function loadConversationMessages(conversation) {
+    if (!messages) return;
+    messages.innerHTML = `<div class="notice">Loading messages...</div>`;
+    try {
+      const result = await api(`/conversations/${conversation.id}/messages`);
+      renderMessageHistory(result.messages || []);
+    } catch (error) {
+      messages.innerHTML = `<div class="notice">${escapeHtml(error.message)}</div>`;
+    }
+  }
+
+  async function selectConversation(conversation) {
+    activeConversation = conversation;
+    sessionStorage.setItem("ton_last_conversation_id", conversation.id);
+    if (chatName) chatName.textContent = conversation.name || "Teacher";
+    if (chatStatus) chatStatus.textContent = conversation.blocked ? "Blocked" : "Available";
+    $$(".conversation-item").forEach((item) => item.classList.toggle("active", item.dataset.conversationId === conversation.id));
+    await loadConversationMessages(conversation);
+  }
+
+  if (!conversations.length) {
+    renderEmpty();
+  } else if (list) {
+    list.innerHTML = conversations.map((conversation) => `
+      <article class="list-item conversation-item" data-conversation-id="${conversation.id}">
+        <div>
+          <h3>${escapeHtml(conversation.name || "Teacher")}</h3>
+          <p>${escapeHtml(conversation.lastMessage || "Conversation opened from match.")}</p>
+          <div class="inline-tags"><span>${conversation.archived ? "Archived" : "Open"}</span><span>${conversation.muted ? "Muted" : "Alerts on"}</span>${conversation.unread ? `<span>${conversation.unread} unread</span>` : ""}</div>
+        </div>
+      </article>
+    `).join("");
+    list.querySelectorAll(".conversation-item").forEach((item) => {
+      item.addEventListener("click", () => {
+        const conversation = conversations.find((entry) => entry.id === item.dataset.conversationId);
+        if (conversation) selectConversation(conversation);
+      });
+    });
+    const active = sessionStorage.getItem("ton_last_conversation_id");
+    selectConversation(conversations.find((entry) => entry.id === active) || conversations[0]);
+  }
+
+  input?.addEventListener("input", () => {
+    if (send) send.disabled = input.value.trim().length === 0;
+  });
+  async function sendActiveMessage() {
+    const body = input?.value.trim();
+    if (!body || !activeConversation || !messages || !send) return;
+    send.disabled = true;
+    try {
+      const result = await api(`/conversations/${activeConversation.id}/messages`, {
+        method: "POST",
+        body: JSON.stringify({ body })
+      });
+      input.value = "";
+      renderMessageHistory([...activeMessages, result.message]);
+      await loadConversationMessages(activeConversation);
+      const item = list?.querySelector(`[data-conversation-id="${activeConversation.id}"] p`);
+      if (item) item.textContent = body;
+      refreshNotificationBadge();
+    } catch (error) {
+      setMessage(error.message);
+      send.disabled = false;
+    }
+  }
+  send?.addEventListener("click", sendActiveMessage);
+  input?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendActiveMessage();
+    }
+  });
 }
 
-function bootMyShop() {
+async function bootNotifications() {
+  const list = $("#notifications-list");
+  const markAll = $("#mark-notifications-read");
+  if (!list) return;
+
+  function render(notifications = []) {
+    list.innerHTML = notifications.length ? notifications.map((notification) => `
+      <article class="list-item notification-item ${notification.isRead ? "is-read" : "is-unread"}" data-notification-id="${notification.id}" data-target="${notification.target}">
+        <div>
+          <h3>${escapeHtml(notification.title)}</h3>
+          <p>${escapeHtml(notification.body)}</p>
+          <div class="inline-tags"><span>${escapeHtml(notification.type.replaceAll("_", " "))}</span><span>${new Date(notification.createdAt).toLocaleString()}</span>${notification.isRead ? "<span>Read</span>" : "<span>Unread</span>"}</div>
+        </div>
+        <div class="list-actions">
+          <button type="button" data-notification-action="open" data-notification-id="${notification.id}" data-target="${notification.target}">Open</button>
+          ${notification.isRead ? "" : `<button class="secondary" type="button" data-notification-action="read" data-notification-id="${notification.id}">Mark read</button>`}
+        </div>
+      </article>
+    `).join("") : `<div class="notice">No notifications yet.</div>`;
+    list.querySelectorAll("[data-notification-action]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const id = button.dataset.notificationId;
+        const action = button.dataset.notificationAction;
+        try {
+          await api(`/notifications/${id}/read`, { method: "PUT" });
+          if (action === "open") {
+            window.location.href = button.dataset.target || "/notifications";
+            return;
+          }
+          await load();
+          refreshNotificationBadge();
+        } catch (error) {
+          setMessage(error.message);
+        }
+      });
+    });
+  }
+
+  async function load() {
+    list.innerHTML = `<div class="notice">Loading notifications...</div>`;
+    try {
+      const data = await api("/notifications");
+      render(data.notifications || []);
+    } catch (error) {
+      list.innerHTML = `<div class="notice">${escapeHtml(error.message)}</div>`;
+    }
+  }
+
+  markAll?.addEventListener("click", async () => {
+    markAll.disabled = true;
+    try {
+      const result = await api("/notifications/read", { method: "PUT" });
+      setMessage(`${result.updated || 0} notifications marked as read.`, "success");
+      await load();
+      refreshNotificationBadge();
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      markAll.disabled = false;
+    }
+  });
+
+  await load();
+}
+
+async function bootMyShop() {
   const form = $("#product-form");
   const productType = $("#product-type");
   const priceInput = $("#product-price");
@@ -1551,9 +1749,40 @@ function bootMyShop() {
   const videoField = $("#product-video");
   const filePreview = $("#upload-preview");
   const salesId = $("#sales-id");
+  let productsList = $("#seller-products-list");
 
   if (!form) return;
-  salesId.textContent = localStorage.getItem("ton_seller_id") || "UDPBB27PE9";
+
+  if (!productsList) {
+    productsList = document.createElement("div");
+    productsList.id = "seller-products-list";
+    productsList.className = "list compact-results";
+    form.insertAdjacentElement("afterend", productsList);
+  }
+
+  function renderSellerProducts(products = []) {
+    productsList.innerHTML = products.length ? products.map((product) => `
+      <article class="list-item">
+        <div>
+          <h3>${escapeHtml(product.title)}</h3>
+          <p>${escapeHtml(product.fileNames?.join(", ") || "Files queued for review")}</p>
+          <div class="inline-tags"><span>${escapeHtml(product.displayType || product.productType)}</span><span>KES ${Number(product.price).toLocaleString()}</span><span>${escapeHtml(product.approvalStatus)}</span><span>${product.deliverable ? "Deliverable" : "Assets pending"}</span></div>
+          <div class="inline-tags">${(product.assets || []).map((asset) => `<span>${escapeHtml(asset.originalName)}: ${escapeHtml(asset.status)}</span>`).join("")}</div>
+        </div>
+      </article>
+    `).join("") : `<div class="notice">No products submitted yet.</div>`;
+  }
+
+  async function loadSellerProducts() {
+    productsList.innerHTML = `<div class="notice">Loading shop products...</div>`;
+    try {
+      const data = await api("/seller/products");
+      if (salesId) salesId.textContent = data.seller?.salesId || "Pending";
+      renderSellerProducts(data.products || []);
+    } catch (error) {
+      productsList.innerHTML = `<div class="notice">${escapeHtml(error.message)}</div>`;
+    }
+  }
 
   function updateUploadFields() {
     const type = productType.value;
@@ -1576,7 +1805,7 @@ function bootMyShop() {
   videoField?.addEventListener("change", () => renderFilePreview(videoField.files));
   updateUploadFields();
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const name = $("#product-name").value.trim();
     const type = productType.value;
@@ -1597,27 +1826,66 @@ function bootMyShop() {
       }
     }
 
-    const product = {
-      title: name,
-      type,
-      price,
-      files: type === "VIDEO_COURSE" ? Array.from(video).map((file) => file.name) : Array.from(files).map((file) => file.name),
-      uploadedAt: new Date().toISOString()
-    };
-
-    const storage = JSON.parse(localStorage.getItem("ton_shop_products") || "[]");
-    storage.unshift(product);
-    localStorage.setItem("ton_shop_products", JSON.stringify(storage));
-
-    setMessage(type === "VIDEO_COURSE"
-      ? "Video uploaded and compressed for delivery. The platform compresses it while preserving quality."
-      : "Product uploaded to admin verification. PDF materials are ready for review.",
-      "success");
-
-    form.reset();
-    updateUploadFields();
-    renderFilePreview([]);
+    try {
+      await api("/seller/products", {
+        method: "POST",
+        body: JSON.stringify({
+          title: name,
+          productType: type,
+          price,
+          assets: (type === "VIDEO_COURSE" ? Array.from(video) : Array.from(files)).map((file) => ({
+            originalName: file.name,
+            mimeType: file.type,
+            sizeBytes: file.size
+          }))
+        })
+      });
+      setMessage("Product submitted to admin verification and saved to your seller account.", "success");
+      form.reset();
+      updateUploadFields();
+      renderFilePreview([]);
+      await loadSellerProducts();
+      refreshNotificationBadge();
+    } catch (error) {
+      setMessage(error.message);
+    }
   });
+
+  await loadSellerProducts();
+}
+
+async function bootShop() {
+  const target = $("#static-cards");
+  if (!target) return;
+  target.innerHTML = `<div class="notice">Loading marketplace products...</div>`;
+  try {
+    const data = await api("/shop/products");
+    target.dataset.dynamicLoaded = "true";
+    const products = data.products || [];
+    target.innerHTML = products.length ? products.map((product) => `
+      <article class="card">
+        <p class="eyebrow">${escapeHtml(product.displayType || product.productType)}</p>
+        <h3>${escapeHtml(product.title)}</h3>
+        <p>${escapeHtml(product.description || "Admin verified teaching material.")}</p>
+        <footer>KES ${Number(product.price).toLocaleString()} · Seller ${escapeHtml(product.sellerSalesId || "Verified")}</footer>
+      </article>
+    `).join("") : `<div class="notice">No verified marketplace products are live yet. Submitted products appear here after admin approval.</div>`;
+    target.querySelectorAll(".card").forEach((card, index) => {
+      card.tabIndex = 0;
+      card.addEventListener("click", async () => {
+        const product = products[index];
+        if (!product) return;
+        try {
+          const result = await api(`/shop/products/${product.id}/checkout`, { method: "POST" });
+          setMessage(result.purchase?.message || "Checkout started.", "success");
+        } catch (error) {
+          setMessage(error.message);
+        }
+      });
+    });
+  } catch (error) {
+    target.innerHTML = `<div class="notice">${escapeHtml(error.message)}</div>`;
+  }
 }
 
 async function bootOtherMatches() {
@@ -1721,6 +1989,7 @@ async function bootForgotPassword() {
 async function bootAdmin() {
   const usersList = $("#admin-users-list");
   const reportsList = $("#admin-reports-list");
+  const productsList = $("#admin-products-list");
   const passwordRequestsList = $("#admin-password-requests-list");
   const adminsList = $("#admin-admins-list");
   const newsForm = $("#admin-news-form");
@@ -1736,7 +2005,7 @@ async function bootAdmin() {
   });
 
   async function refreshUsers() {
-    const data = await api("/api/users").catch((error) => { setMessage(error.message, "error"); return { users: [] }; });
+    const data = await api("/users").catch((error) => { setMessage(error.message, "error"); return { users: [] }; });
     if (!usersList) return;
     usersList.innerHTML = data.users.map((user) => `
       <article class="list-item admin-user-item">
@@ -1757,7 +2026,7 @@ async function bootAdmin() {
         const userId = button.dataset.userId;
         if (action === "toggle-status") {
           const status = button.textContent === "Block" ? "SUSPENDED" : "ACTIVE";
-          await api(`/api/admin/users/${userId}/status`, {
+          await api(`/admin/users/${userId}/status`, {
             method: "PUT",
             body: JSON.stringify({ accountStatus: status })
           });
@@ -1765,7 +2034,7 @@ async function bootAdmin() {
           refreshUsers();
         }
         if (action === "reset-password") {
-          const result = await api(`/api/admin/users/${userId}/reset-password`, { method: "POST" });
+          const result = await api(`/admin/users/${userId}/reset-password`, { method: "POST" });
           setMessage(`Reset code sent for admin use: ${result.resetCode}`, "success");
         }
       });
@@ -1773,7 +2042,7 @@ async function bootAdmin() {
   }
 
   async function refreshReports() {
-    const data = await api("/api/admin/reports").catch((error) => { setMessage(error.message, "error"); return { reports: [] }; });
+    const data = await api("/admin/reports").catch((error) => { setMessage(error.message, "error"); return { reports: [] }; });
     if (!reportsList) return;
     reportsList.innerHTML = data.reports.map((report) => `
       <article class="list-item">
@@ -1786,8 +2055,61 @@ async function bootAdmin() {
     `).join("");
   }
 
+  async function refreshProducts() {
+    const data = await api("/admin/products").catch((error) => { setMessage(error.message, "error"); return { products: [] }; });
+    if (!productsList) return;
+    productsList.innerHTML = data.products.length ? data.products.map((product) => `
+      <article class="list-item">
+        <div>
+          <h4>${escapeHtml(product.title)}</h4>
+          <p>${escapeHtml(product.fileNames?.join(", ") || product.description || "No file metadata")}</p>
+          <div class="inline-tags"><span>${escapeHtml(product.displayType || product.productType)}</span><span>KES ${Number(product.price).toLocaleString()}</span><span>${escapeHtml(product.approvalStatus)}</span><span>Seller ${escapeHtml(product.sellerSalesId)}</span></div>
+          <div class="inline-tags">${(product.assets || []).map((asset) => `<span>${escapeHtml(asset.originalName)}: ${escapeHtml(asset.status)}</span>`).join("")}</div>
+        </div>
+        <div class="list-actions">
+          ${(product.assets || []).map((asset) => `<button class="secondary" type="button" data-asset-review="CLEAN" data-asset-id="${asset.id}">Mark ${escapeHtml(asset.originalName)} clean</button>`).join("")}
+          <button type="button" data-product-review="APPROVED" data-product-id="${product.id}">Approve</button>
+          <button class="secondary" type="button" data-product-review="NEEDS_CHANGES" data-product-id="${product.id}">Needs changes</button>
+          <button class="secondary" type="button" data-product-review="REJECTED" data-product-id="${product.id}">Reject</button>
+        </div>
+      </article>
+    `).join("") : `<div class="notice">No product submissions yet.</div>`;
+    productsList.querySelectorAll("[data-product-review]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        try {
+          await api(`/admin/products/${button.dataset.productId}/status`, {
+            method: "PUT",
+            body: JSON.stringify({ approvalStatus: button.dataset.productReview })
+          });
+          setMessage("Product review status updated.", "success");
+          await refreshProducts();
+        } catch (error) {
+          setMessage(error.message);
+          button.disabled = false;
+        }
+      });
+    });
+    productsList.querySelectorAll("[data-asset-review]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        try {
+          await api(`/admin/product-assets/${button.dataset.assetId}/status`, {
+            method: "PUT",
+            body: JSON.stringify({ status: button.dataset.assetReview, scanNotes: "Asset passed admin scan." })
+          });
+          setMessage("Asset scan status updated.", "success");
+          await refreshProducts();
+        } catch (error) {
+          setMessage(error.message);
+          button.disabled = false;
+        }
+      });
+    });
+  }
+
   async function refreshPasswordRequests() {
-    const data = await api("/api/admin/password-reset-requests").catch((error) => { setMessage(error.message, "error"); return { requests: [] }; });
+    const data = await api("/admin/password-reset-requests").catch((error) => { setMessage(error.message, "error"); return { requests: [] }; });
     if (!passwordRequestsList) return;
     passwordRequestsList.innerHTML = data.requests.map((req) => `
       <article class="list-item">
@@ -1809,7 +2131,7 @@ async function bootAdmin() {
   }
 
   async function refreshAdmins() {
-    const data = await api("/api/admin/users").catch((error) => { setMessage(error.message, "error"); return { users: [] }; });
+    const data = await api("/users").catch((error) => { setMessage(error.message, "error"); return { users: [] }; });
     const admins = data.users.filter(user => user.role === "ADMIN");
     if (!adminsList) return;
     adminsList.innerHTML = admins.map((admin) => `
@@ -1832,7 +2154,7 @@ async function bootAdmin() {
     newsForm.reset();
   });
 
-  await Promise.all([refreshUsers(), refreshAdmins(), refreshReports(), refreshPasswordRequests()]);
+  await Promise.all([refreshUsers(), refreshAdmins(), refreshReports(), refreshProducts(), refreshPasswordRequests()]);
 
   // Admin creation form
   const createAdminForm = $("#admin-create-admin-form");
@@ -1848,7 +2170,10 @@ async function bootAdmin() {
       }
 
       try {
-        await api("/admin/admins", "POST", { email, password });
+        await api("/admin/admins", {
+          method: "POST",
+          body: JSON.stringify({ email, password })
+        });
         setMessage("Admin created successfully.", "success");
         createAdminForm.reset();
         await refreshAdmins();
@@ -1864,7 +2189,7 @@ async function bootAdmin() {
       const adminId = e.target.dataset.adminId;
       if (confirm("Are you sure you want to delete this admin?")) {
         try {
-          await api(`/admin/admins/${adminId}`, "DELETE");
+          await api(`/admin/admins/${adminId}`, { method: "DELETE" });
           setMessage("Admin deleted successfully.", "success");
           await refreshAdmins();
         } catch (error) {
@@ -2142,6 +2467,70 @@ function bootVideos() {
   });
 }
 
+function bootBlogs() {
+  const list = $("#blogs-list");
+  const reader = $("#blog-reader");
+  const filter = $("#blog-filter");
+  const search = $("#blog-search");
+  if (!list) return;
+
+  function visibleBlogs() {
+    const topic = filter?.value || "All";
+    const query = (search?.value || "").trim().toLowerCase();
+    return staticBlogs.filter((blog) => {
+      const topicMatch = topic === "All" || blog.topic === topic;
+      const queryMatch = !query || `${blog.title} ${blog.excerpt} ${blog.author}`.toLowerCase().includes(query);
+      return topicMatch && queryMatch;
+    });
+  }
+
+  function openBlog(blog) {
+    if (!reader) return;
+    list.style.display = "none";
+    reader.style.display = "block";
+    $("#blog-title").textContent = blog.title;
+    $("#blog-author").textContent = blog.author;
+    $("#blog-date").textContent = blog.date;
+    $("#blog-topic").textContent = blog.topic;
+    $("#like-count").textContent = blog.likes;
+    $("#blog-content").innerHTML = blog.content;
+    $("#comment-count").textContent = blog.comments.length;
+    $("#comments-list").innerHTML = blog.comments.length
+      ? blog.comments.map((comment) => `<article class="comment-item">${escapeHtml(comment)}</article>`).join("")
+      : `<div class="notice">No comments yet.</div>`;
+  }
+
+  function render() {
+    const blogs = visibleBlogs();
+    list.style.display = "";
+    if (reader) reader.style.display = "none";
+    list.innerHTML = blogs.length ? blogs.map((blog) => `
+      <article class="list-item blog-list-item" data-blog-id="${blog.id}">
+        <div>
+          <h3>${escapeHtml(blog.title)}</h3>
+          <p>${escapeHtml(blog.excerpt)}</p>
+          <div class="inline-tags"><span>${escapeHtml(blog.topic)}</span><span>${escapeHtml(blog.author)}</span><span>${escapeHtml(blog.date)}</span></div>
+        </div>
+      </article>
+    `).join("") : `<div class="notice">No posts match the selected filters.</div>`;
+    list.querySelectorAll(".blog-list-item").forEach((item) => {
+      item.addEventListener("click", () => {
+        const blog = staticBlogs.find((entry) => entry.id === item.dataset.blogId);
+        if (blog) openBlog(blog);
+      });
+    });
+  }
+
+  filter?.addEventListener("change", render);
+  search?.addEventListener("input", render);
+  $("#back-to-blogs")?.addEventListener("click", render);
+  $("#submit-comment")?.addEventListener("click", () => setMessage("Comment moderation queue is not yet connected.", "error"));
+  $("#comment-input")?.addEventListener("input", () => {
+    $("#submit-comment").disabled = $("#comment-input").value.trim().length === 0;
+  });
+  render();
+}
+
 function bootWatch() {
   const id = new URLSearchParams(window.location.search).get("id") || "cbc-science-practicals";
   const video = staticVideos.find((item) => item[0] === id) || staticVideos[0];
@@ -2154,6 +2543,7 @@ function bootWatch() {
 function bootStaticCards() {
   const target = $("#static-cards");
   if (!target) return;
+  if (target.dataset.dynamicLoaded === "true") return;
   const cards = JSON.parse(target.dataset.cards || "[]");
   target.innerHTML = cards.map((card) => `
     <article class="card"><p class="eyebrow">${card.type}</p><h3>${card.title}</h3><p>${card.body}</p><footer>${card.meta || ""}</footer></article>
@@ -2172,11 +2562,14 @@ async function boot() {
   if (page === "swap") await bootSwap();
   if (page === "matches") await bootMatches();
   if (page === "messages") await bootMessages();
+  if (page === "notifications") await bootNotifications();
   if (page === "my-shop") await bootMyShop();
+  if (page === "shop") await bootShop();
   if (page === "creator-studio") bootCreatorStudio();
   if (page === "other-matches") await bootOtherMatches();
   if (page === "admin") await bootAdmin();
   if (page === "forgot-password") await bootForgotPassword();
+  if (page === "blogs") bootBlogs();
   if (page === "videos") bootVideos();
   if (page === "watch") bootWatch();
   bootStaticCards();

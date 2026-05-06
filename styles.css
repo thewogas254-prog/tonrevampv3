@@ -1777,6 +1777,35 @@ textarea {
   margin-left: 8px;
 }
 
+.nav-badge {
+  display: inline-flex;
+  min-width: 18px;
+  height: 18px;
+  margin-left: auto;
+  padding: 0 5px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--red);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.nav-badge[hidden] {
+  display: none;
+}
+
+.notification-item.is-unread {
+  border-left: 4px solid var(--green);
+  background: rgba(25, 111, 77, 0.06);
+}
+
+.notification-item.is-read {
+  opacity: 0.72;
+}
+
 .conversation-status {
   width: 8px;
   height: 8px;

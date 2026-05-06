@@ -116,6 +116,16 @@ enum PaymentStatus {
   @@map("payment_status")
 }
 
+enum ProductAssetStatus {
+  PENDING_UPLOAD
+  UPLOADED
+  SCANNING
+  CLEAN
+  REJECTED
+
+  @@map("product_asset_status")
+}
+
 enum WalletTransactionType {
   SALE_CREDIT
   WITHDRAWAL_DEBIT
@@ -694,12 +704,32 @@ model Product {
   seller    SellerAccount     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   category  ProductCategory?  @relation(fields: [categoryId], references: [id])
   purchases ProductPurchase[]
+  assets    ProductAsset[]
 
   @@index([sellerId])
   @@index([categoryId])
   @@index([approvalStatus])
   @@index([productType])
   @@map("products")
+}
+
+model ProductAsset {
+  id           String             @id @default(uuid()) @db.Uuid
+  productId    String             @map("product_id") @db.Uuid
+  originalName String             @map("original_name") @db.VarChar(255)
+  storageKey   String             @unique @map("storage_key")
+  mimeType     String             @map("mime_type") @db.VarChar(120)
+  sizeBytes    Int                @default(0) @map("size_bytes")
+  status       ProductAssetStatus @default(PENDING_UPLOAD)
+  scanNotes    String?            @map("scan_notes")
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime           @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([status])
+  @@map("product_assets")
 }
 
 model ProductPurchase {

@@ -3,7 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const { PrismaClient, TeachingLevel, UrgencyStatus, UserRole, PartnerAccountType, AccountStatus } = require("@prisma/client");
+const { PrismaClient, TeachingLevel, UrgencyStatus, UserRole, PartnerAccountType, AccountStatus, ProductType, ApprovalStatus, ProductAssetStatus, PaymentStatus } = require("@prisma/client");
 
 dotenv.config();
 
@@ -11,13 +11,21 @@ const prisma = new PrismaClient();
 const app = express();
 const port = Number(process.env.PORT || 4000);
 const jwtSecret = process.env.JWT_SECRET;
+const allowedOrigins = (process.env.CORS_ORIGINS || "").split(",").map((origin) => origin.trim()).filter(Boolean);
+const allowPrototypePasswords = process.env.ALLOW_PROTOTYPE_PASSWORDS === "true";
 
 if (!jwtSecret) {
   console.error("Missing JWT_SECRET environment variable. Set JWT_SECRET before starting the API.");
   process.exit(1);
 }
 
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || !allowedOrigins.length || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("Origin not allowed by CORS."));
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: "1mb" }));
 
 function normalizeKenyanPhone(value = "") {
@@ -36,7 +44,7 @@ function hashPassword(password) {
 
 function verifyPassword(password, storedHash) {
   if (!storedHash) return false;
-  if (storedHash === `prototype-password-${password}` || storedHash === "seed-password-hash") return true;
+  if (allowPrototypePasswords && (storedHash === `prototype-password-${password}` || storedHash === "seed-password-hash")) return true;
   const [scheme, salt, hash] = storedHash.split("$");
   if (scheme !== "scrypt" || !salt || !hash) return false;
   const candidate = crypto.scryptSync(password, salt, 64);
@@ -387,6 +395,321 @@ function partnerRequired(req, res, next) {
   next();
 }
 
+function productTypeForDb(type = "EBOOK") {
+  const normalized = String(type).toUpperCase();
+  if (normalized === "VIDEO_COURSE") return ProductType.VIDEO_CLASS;
+  if (normalized === "PASTPAPER") return ProductType.PAST_PAPER;
+  return Object.values(ProductType).includes(normalized) ? normalized : ProductType.EBOOK;
+}
+
+function categorySlugForProduct(type = ProductType.EBOOK) {
+  return {
+    EBOOK: "ebooks",
+    PAST_PAPER: "past-papers",
+    EXAM_PAPER: "past-papers",
+    VIDEO_CLASS: "video-courses",
+    AUDIO_CLASS: "audio-classes",
+    TEACHING_AID: "teaching-aids",
+    WEBINAR: "webinars",
+    TEMPLATE: "templates",
+    LESSON_PLAN: "lesson-plans",
+    SOFTWARE: "software"
+  }[type] || "ebooks";
+}
+
+async function uniqueSalesId() {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const id = `S${crypto.randomBytes(4).toString("hex").toUpperCase().slice(0, 9)}`;
+    const existing = await prisma.sellerAccount.findUnique({ where: { salesId: id } });
+    if (!existing) return id;
+  }
+  return `S${Date.now().toString().slice(-9)}`;
+}
+
+async function getOrCreateSeller(userId) {
+  const existing = await prisma.sellerAccount.findUnique({ where: { userId } });
+  if (existing) return existing;
+  return prisma.sellerAccount.create({
+    data: {
+      userId,
+      salesId: await uniqueSalesId(),
+      verificationStatus: ApprovalStatus.PENDING
+    }
+  });
+}
+
+function productDto(product) {
+  const fileNames = product.fileUrl?.startsWith("pending://")
+    ? product.fileUrl.slice("pending://".length).split("|").filter(Boolean)
+    : [];
+  const assets = Array.isArray(product.assets) ? product.assets : [];
+  return {
+    id: product.id,
+    title: product.title || "Untitled product",
+    description: product.description || "",
+    productType: product.productType,
+    displayType: product.productType === ProductType.VIDEO_CLASS ? "VIDEO_COURSE" : product.productType,
+    price: Number(product.price || 0),
+    approvalStatus: product.approvalStatus,
+    salesCount: product.salesCount,
+    viewsCount: product.viewsCount,
+    sellerSalesId: product.seller?.salesId || "",
+    category: product.category?.name || "",
+    fileNames: assets.length ? assets.map((asset) => asset.originalName) : fileNames,
+    assets: assets.map((asset) => ({
+      id: asset.id,
+      originalName: asset.originalName,
+      mimeType: asset.mimeType,
+      sizeBytes: asset.sizeBytes,
+      status: asset.status,
+      scanNotes: asset.scanNotes || ""
+    })),
+    deliverable: product.approvalStatus === ApprovalStatus.APPROVED && assets.length > 0 && assets.every((asset) => asset.status === ProductAssetStatus.CLEAN),
+    createdAt: product.createdAt.toISOString()
+  };
+}
+
+function storageKeyForProductAsset(userId, fileName = "") {
+  const safeName = String(fileName).replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 120) || "asset";
+  return `products/${userId}/${Date.now()}-${crypto.randomBytes(6).toString("hex")}-${safeName}`;
+}
+
+function inferMimeType(fileName = "", explicitType = "") {
+  if (explicitType) return String(explicitType);
+  const lower = String(fileName).toLowerCase();
+  if (lower.endsWith(".pdf")) return "application/pdf";
+  if (lower.endsWith(".mp4")) return "video/mp4";
+  if (lower.endsWith(".mov")) return "video/quicktime";
+  return "application/octet-stream";
+}
+
+app.get("/api/seller/products", authRequired, async (req, res, next) => {
+  try {
+    const seller = await getOrCreateSeller(req.auth.sub);
+    const products = await prisma.product.findMany({
+      where: { sellerId: seller.id, isDeleted: false },
+      orderBy: { createdAt: "desc" },
+      include: { seller: true, category: true, assets: { orderBy: { createdAt: "asc" } } }
+    });
+    res.json({
+      seller: {
+        id: seller.id,
+        salesId: seller.salesId,
+        verificationStatus: seller.verificationStatus
+      },
+      products: products.map(productDto)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/seller/products", authRequired, async (req, res, next) => {
+  try {
+    const title = String(req.body.title || "").trim();
+    const price = Number(req.body.price || 0);
+    const productType = productTypeForDb(req.body.productType || req.body.type);
+    const rawAssets = Array.isArray(req.body.assets) ? req.body.assets : [];
+    const fileNames = Array.isArray(req.body.fileNames) ? req.body.fileNames.map((item) => String(item).trim()).filter(Boolean) : [];
+    const assets = rawAssets.length
+      ? rawAssets.map((asset) => ({
+        originalName: String(asset.originalName || asset.fileName || "").trim(),
+        mimeType: inferMimeType(asset.originalName || asset.fileName, asset.mimeType),
+        sizeBytes: Math.max(0, Number(asset.sizeBytes || 0))
+      })).filter((asset) => asset.originalName)
+      : fileNames.map((fileName) => ({ originalName: fileName, mimeType: inferMimeType(fileName), sizeBytes: 0 }));
+    if (!title) return res.status(400).json({ error: "Product title is required." });
+    if (!Number.isFinite(price) || price < 50) return res.status(400).json({ error: "Minimum product price is KES 50." });
+    if (!assets.length) return res.status(400).json({ error: "At least one submitted asset is required." });
+    if (productType === ProductType.VIDEO_CLASS && assets.length > 1) return res.status(400).json({ error: "Only one video file is allowed per video course." });
+    if (assets.length > 10) return res.status(400).json({ error: "Maximum 10 files can be submitted per product." });
+    if (productType === ProductType.VIDEO_CLASS && assets.some((asset) => !asset.mimeType.startsWith("video/"))) {
+      return res.status(400).json({ error: "Video courses require a video asset." });
+    }
+    if ([ProductType.EBOOK, ProductType.PAST_PAPER, ProductType.EXAM_PAPER].includes(productType) && assets.some((asset) => asset.mimeType !== "application/pdf")) {
+      return res.status(400).json({ error: "Ebooks and papers require PDF assets." });
+    }
+
+    const seller = await getOrCreateSeller(req.auth.sub);
+    const category = await prisma.productCategory.findUnique({ where: { slug: categorySlugForProduct(productType) } });
+    const product = await prisma.product.create({
+      data: {
+        sellerId: seller.id,
+        categoryId: category?.id || null,
+        title,
+        description: String(req.body.description || "Submitted through My Shop for verification.").trim(),
+        productType,
+        fileUrl: null,
+        price,
+        approvalStatus: ApprovalStatus.PENDING,
+        assets: {
+          create: assets.map((asset) => ({
+            originalName: asset.originalName,
+            storageKey: storageKeyForProductAsset(req.auth.sub, asset.originalName),
+            mimeType: asset.mimeType,
+            sizeBytes: Math.round(asset.sizeBytes),
+            status: ProductAssetStatus.SCANNING,
+            scanNotes: "Queued for malware and content policy scan."
+          }))
+        }
+      },
+      include: { seller: true, category: true, assets: { orderBy: { createdAt: "asc" } } }
+    });
+    await prisma.notification.create({
+      data: {
+        userId: req.auth.sub,
+        notificationType: "ACCOUNT_ALERT",
+        title: "Product submitted for review",
+        body: `${title} is queued for verification before it appears in the marketplace.`,
+        referenceId: product.id
+      }
+    });
+    res.status(201).json({ product: productDto(product) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/shop/products", authRequired, async (_req, res, next) => {
+  try {
+    const products = await prisma.product.findMany({
+      where: { isDeleted: false, approvalStatus: ApprovalStatus.APPROVED },
+      orderBy: { createdAt: "desc" },
+      take: 60,
+      include: { seller: true, category: true, assets: { orderBy: { createdAt: "asc" } } }
+    });
+    res.json({ products: products.map(productDto).filter((product) => product.deliverable) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/admin/products", authRequired, adminRequired, async (_req, res, next) => {
+  try {
+    const products = await prisma.product.findMany({
+      where: { isDeleted: false },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+      include: { seller: true, category: true, assets: { orderBy: { createdAt: "asc" } } }
+    });
+    res.json({ products: products.map(productDto) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/admin/products/:productId/status", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const approvalStatus = String(req.body.approvalStatus || "").toUpperCase();
+    if (!Object.values(ApprovalStatus).includes(approvalStatus)) {
+      return res.status(400).json({ error: "Invalid product approval status." });
+    }
+    if (approvalStatus === ApprovalStatus.APPROVED) {
+      const unsafeAsset = await prisma.productAsset.findFirst({
+        where: {
+          productId: req.params.productId,
+          status: { not: ProductAssetStatus.CLEAN }
+        }
+      });
+      if (unsafeAsset) return res.status(400).json({ error: "All product assets must be clean before approval." });
+    }
+    const product = await prisma.product.update({
+      where: { id: req.params.productId },
+      data: { approvalStatus },
+      include: { seller: true, category: true, assets: { orderBy: { createdAt: "asc" } } }
+    });
+    await prisma.notification.create({
+      data: {
+        userId: product.seller.userId,
+        notificationType: "ACCOUNT_ALERT",
+        title: approvalStatus === ApprovalStatus.APPROVED ? "Product approved" : "Product review updated",
+        body: `${product.title || "Your product"} is now ${approvalStatus.toLowerCase().replace("_", " ")}.`,
+        referenceId: product.id
+      }
+    });
+    res.json({ product: productDto(product) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/admin/product-assets/:assetId/status", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const status = String(req.body.status || "").toUpperCase();
+    if (!Object.values(ProductAssetStatus).includes(status)) {
+      return res.status(400).json({ error: "Invalid product asset status." });
+    }
+    const asset = await prisma.productAsset.update({
+      where: { id: req.params.assetId },
+      data: {
+        status,
+        scanNotes: String(req.body.scanNotes || (status === ProductAssetStatus.CLEAN ? "Asset passed scan." : "Asset status updated.")).trim()
+      },
+      include: { product: { include: { seller: true, category: true, assets: { orderBy: { createdAt: "asc" } } } } }
+    });
+    res.json({ asset: productDto(asset.product).assets.find((item) => item.id === asset.id), product: productDto(asset.product) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/shop/products/:productId/checkout", authRequired, async (req, res, next) => {
+  try {
+    const product = await prisma.product.findFirst({
+      where: { id: req.params.productId, isDeleted: false, approvalStatus: ApprovalStatus.APPROVED },
+      include: { seller: true, category: true, assets: true }
+    });
+    if (!product) return res.status(404).json({ error: "Product is not available." });
+    if (!product.assets.length || product.assets.some((asset) => asset.status !== ProductAssetStatus.CLEAN)) {
+      return res.status(409).json({ error: "Product files are not cleared for delivery." });
+    }
+    if (product.seller.userId === req.auth.sub) return res.status(400).json({ error: "You cannot buy your own product." });
+
+    const purchase = await prisma.productPurchase.create({
+      data: {
+        buyerId: req.auth.sub,
+        productId: product.id,
+        amountPaid: product.price,
+        paymentStatus: PaymentStatus.PENDING
+      }
+    });
+
+    res.status(201).json({
+      purchase: {
+        id: purchase.id,
+        productId: product.id,
+        amountPaid: Number(purchase.amountPaid),
+        paymentStatus: purchase.paymentStatus,
+        message: "Checkout started. Delivery unlocks after verified payment."
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/shop/purchases", authRequired, async (req, res, next) => {
+  try {
+    const purchases = await prisma.productPurchase.findMany({
+      where: { buyerId: req.auth.sub },
+      orderBy: { createdAt: "desc" },
+      include: { product: { include: { seller: true, category: true, assets: { orderBy: { createdAt: "asc" } } } } }
+    });
+    res.json({
+      purchases: purchases.map((purchase) => ({
+        id: purchase.id,
+        paymentStatus: purchase.paymentStatus,
+        amountPaid: Number(purchase.amountPaid),
+        createdAt: purchase.createdAt.toISOString(),
+        product: productDto(purchase.product),
+        deliveryAvailable: purchase.paymentStatus === PaymentStatus.PAID && purchase.product.assets.every((asset) => asset.status === ProductAssetStatus.CLEAN)
+      }))
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 function adTypeForDb(type = "TEXT") {
   const normalized = String(type).toUpperCase();
   if (normalized === "PHOTO" || normalized === "IMAGE") return "IMAGE";
@@ -596,21 +919,44 @@ async function generateMatchesForRequest(request) {
   });
   for (const other of reciprocal) {
     const [a, b] = request.id < other.id ? [request, other] : [other, request];
-    await prisma.match.upsert({
+    const existingMatch = await prisma.match.findUnique({
       where: {
         swapRequestAId_swapRequestBId: {
           swapRequestAId: a.id,
           swapRequestBId: b.id
         }
-      },
-      update: { compatibilityScore: 100 },
-      create: {
+      }
+    });
+    if (existingMatch) {
+      await prisma.match.update({ where: { id: existingMatch.id }, data: { compatibilityScore: 100 } });
+      continue;
+    }
+    const match = await prisma.match.create({
+      data: {
         teacherAId: a.userId,
         teacherBId: b.userId,
         swapRequestAId: a.id,
         swapRequestBId: b.id,
         compatibilityScore: 100
       }
+    });
+    await prisma.notification.createMany({
+      data: [
+        {
+          userId: a.userId,
+          notificationType: "NEW_MATCH",
+          title: "New exact swap match",
+          body: "A reciprocal EasySwap match is ready to review.",
+          referenceId: match.id
+        },
+        {
+          userId: b.userId,
+          notificationType: "NEW_MATCH",
+          title: "New exact swap match",
+          body: "A reciprocal EasySwap match is ready to review.",
+          referenceId: match.id
+        }
+      ]
     });
   }
 }
@@ -732,7 +1078,7 @@ app.post("/api/auth/forgot-password", async (req, res, next) => {
         status: "PENDING"
       }
     });
-    res.json({ message: "Password reset request submitted. An admin will review the request.", resetCode: code });
+    res.json({ message: "Password reset request submitted. An admin will review the request." });
   } catch (error) {
     next(error);
   }
@@ -1048,23 +1394,201 @@ app.get("/api/conversations", authRequired, async (req, res, next) => {
             messages: { orderBy: { createdAt: "desc" }, take: 1 }
           }
         }
-      },
-      orderBy: { joinedAt: "desc" }
+      }
     });
 
-    res.json({
-      conversations: participants.map((participant) => {
+    const unreadCounts = await prisma.message.groupBy({
+      by: ["conversationId"],
+      where: {
+        conversationId: { in: participants.map((participant) => participant.conversationId) },
+        senderId: { not: req.auth.sub },
+        isRead: false,
+        isDeleted: false
+      },
+      _count: { id: true }
+    });
+    const unreadByConversation = new Map(unreadCounts.map((entry) => [entry.conversationId, entry._count.id]));
+
+    const conversations = participants
+      .map((participant) => {
         const other = participant.conversation.participants.find((item) => item.userId !== req.auth.sub)?.user;
+        const lastMessage = participant.conversation.messages[0];
         return {
           id: participant.conversationId,
           name: other ? `${other.teacherProfile?.firstName || "Teacher"} ${other.teacherProfile?.lastName || ""}`.trim() : "Teacher",
           archived: participant.archived,
           muted: participant.muted,
           blocked: participant.blocked,
-          lastMessage: participant.conversation.messages[0]?.messageBody || "Conversation opened from match."
+          unread: unreadByConversation.get(participant.conversationId) || 0,
+          lastMessage: lastMessage?.messageBody || "Conversation opened from match.",
+          lastMessageAt: lastMessage?.createdAt?.toISOString() || participant.joinedAt.toISOString()
         };
       })
+      .sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt));
+
+    res.json({ conversations });
+  } catch (error) {
+    next(error);
+  }
+});
+
+function notificationTarget(type) {
+  return {
+    NEW_MATCH: "/matches",
+    NEW_MESSAGE: "/messages",
+    BLOG_ENGAGEMENT: "/blogs",
+    PRODUCT_SALE: "/my-shop",
+    WITHDRAWAL_STATUS: "/creator-studio",
+    ACCOUNT_ALERT: "/profile"
+  }[type] || "/notifications";
+}
+
+function notificationDto(notification) {
+  return {
+    id: notification.id,
+    type: notification.notificationType,
+    title: notification.title || "Notification",
+    body: notification.body || "",
+    referenceId: notification.referenceId || null,
+    target: notificationTarget(notification.notificationType),
+    isRead: notification.isRead,
+    createdAt: notification.createdAt.toISOString()
+  };
+}
+
+app.get("/api/notifications", authRequired, async (req, res, next) => {
+  try {
+    const notifications = await prisma.notification.findMany({
+      where: { userId: req.auth.sub },
+      orderBy: { createdAt: "desc" },
+      take: 50
     });
+    const unreadCount = notifications.filter((notification) => !notification.isRead).length;
+    res.json({ unreadCount, notifications: notifications.map(notificationDto) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/notifications/read", authRequired, async (req, res, next) => {
+  try {
+    const result = await prisma.notification.updateMany({
+      where: { userId: req.auth.sub, isRead: false },
+      data: { isRead: true }
+    });
+    res.json({ updated: result.count });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/notifications/:notificationId/read", authRequired, async (req, res, next) => {
+  try {
+    const notification = await prisma.notification.findFirst({
+      where: { id: req.params.notificationId, userId: req.auth.sub }
+    });
+    if (!notification) return res.status(404).json({ error: "Notification not found." });
+    const updated = await prisma.notification.update({
+      where: { id: notification.id },
+      data: { isRead: true }
+    });
+    res.json({ notification: notificationDto(updated) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+async function findOwnedConversation(conversationId, userId) {
+  return prisma.conversation.findFirst({
+    where: {
+      id: conversationId,
+      participants: { some: { userId } }
+    },
+    include: {
+      participants: {
+        include: { user: { include: { teacherProfile: true } } }
+      }
+    }
+  });
+}
+
+function messageDto(message, viewerId) {
+  return {
+    id: message.id,
+    body: message.messageBody || "",
+    attachmentUrl: message.attachmentUrl || null,
+    senderId: message.senderId,
+    mine: message.senderId === viewerId,
+    isRead: message.isRead,
+    createdAt: message.createdAt.toISOString()
+  };
+}
+
+app.get("/api/conversations/:conversationId/messages", authRequired, async (req, res, next) => {
+  try {
+    const conversation = await findOwnedConversation(req.params.conversationId, req.auth.sub);
+    if (!conversation) return res.status(404).json({ error: "Conversation not found." });
+
+    const participant = conversation.participants.find((item) => item.userId === req.auth.sub);
+    if (participant?.blocked) return res.status(403).json({ error: "This conversation is blocked." });
+
+    const messages = await prisma.message.findMany({
+      where: { conversationId: conversation.id, isDeleted: false },
+      orderBy: { createdAt: "asc" },
+      take: 100
+    });
+
+    await prisma.message.updateMany({
+      where: {
+        conversationId: conversation.id,
+        senderId: { not: req.auth.sub },
+        isRead: false
+      },
+      data: { isRead: true }
+    });
+
+    res.json({ messages: messages.map((message) => messageDto(message, req.auth.sub)) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/conversations/:conversationId/messages", authRequired, async (req, res, next) => {
+  try {
+    const conversation = await findOwnedConversation(req.params.conversationId, req.auth.sub);
+    if (!conversation) return res.status(404).json({ error: "Conversation not found." });
+
+    const senderParticipant = conversation.participants.find((item) => item.userId === req.auth.sub);
+    const recipientParticipants = conversation.participants.filter((item) => item.userId !== req.auth.sub);
+    if (senderParticipant?.blocked || recipientParticipants.some((item) => item.blocked)) {
+      return res.status(403).json({ error: "This conversation is blocked." });
+    }
+
+    const body = String(req.body.body || "").trim();
+    if (!body) return res.status(400).json({ error: "Message body is required." });
+    if (body.length > 2000) return res.status(400).json({ error: "Message must be 2,000 characters or fewer." });
+
+    const message = await prisma.message.create({
+      data: {
+        conversationId: conversation.id,
+        senderId: req.auth.sub,
+        messageBody: body
+      }
+    });
+
+    if (recipientParticipants.length) {
+      await prisma.notification.createMany({
+        data: recipientParticipants.map((participant) => ({
+          userId: participant.userId,
+          notificationType: "NEW_MESSAGE",
+          title: "New message",
+          body: body.slice(0, 180),
+          referenceId: conversation.id
+        }))
+      });
+    }
+
+    res.status(201).json({ message: messageDto(message, req.auth.sub) });
   } catch (error) {
     next(error);
   }

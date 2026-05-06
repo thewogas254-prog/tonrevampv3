@@ -1317,6 +1317,7 @@ function bindChatEvents() {
       alert(`Phone number copied to clipboard: ${conversation.phone}\n\nYou can now paste this number into your phone's dialer to call ${conversation.user}.`);
     });
   });
+}
 
 function sendMessage() {
   const messageInput = $("#message-input");
